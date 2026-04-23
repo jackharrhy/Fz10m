@@ -1,42 +1,23 @@
 name: Release Native
 
 on:
-  # workflow_dispatch
   push:
     tags:
       - "v*"
+  workflow_dispatch:
 
 env:
   PROJECT_NAME: Fz10m
 
+permissions:
+  contents: write  # needed to create the GitHub Release
+
 jobs:
-  create_release:
-    name: Create release
-    runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{steps.create_release.outputs.upload_url}}
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Create release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        with:
-          draft: true
-          tag_name: ${{github.ref}}
-          release_name: Release ${{github.ref}}
-          body_path: installer/changelog.txt
-
   build:
-    name: Build
-    needs: create_release
-    runs-on: ${{matrix.os}}
+    name: Build ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [macos-latest, windows-latest]
         include:
@@ -52,98 +33,107 @@ jobs:
         submodules: recursive
 
     - name: Get VST3 SDK
+      shell: bash
       run: |
         cd iPlug2/Dependencies/IPlug
         ./download-iplug-sdks.sh
-      shell: bash
 
     - name: Get Prebuilt Libs
+      shell: bash
       run: |
         cd iPlug2/Dependencies
         ./download-prebuilt-libs.sh
-      shell: bash
 
-    - name: Get Archive Name macOS
-      id: mac_archivename_step
-      if: matrix.os == 'macOS-latest'
-      run: |
-        ARCHIVE_NAME=`python3 iPlug2/Scripts/get_archive_name.py ${{env.PROJECT_NAME}} mac full`
-        echo "name=archive_name::$ARCHIVE_NAME" >> $GITHUB_OUTPUT
+    # ---------- macOS ----------
+    - name: Get archive name (macOS)
+      id: mac_archivename
+      if: matrix.os == 'macos-latest'
       shell: bash
+      run: |
+        name=$(python3 iPlug2/Scripts/get_archive_name.py "${PROJECT_NAME}" mac full)
+        echo "name=${name}" >> "$GITHUB_OUTPUT"
 
     - name: Build macOS
-      if: matrix.os == 'macOS-latest'
+      if: matrix.os == 'macos-latest'
+      shell: bash
       run: |
         cd scripts
         ./makedist-mac.sh full installer
+
+    - name: Stage macOS artefacts
+      if: matrix.os == 'macos-latest'
       shell: bash
+      run: |
+        mkdir -p artefacts
+        name="${{ steps.mac_archivename.outputs.name }}"
+        cp "${{ matrix.build_dir }}/out/${name}-dSYMs.zip" artefacts/
+        cp "${{ matrix.build_dir }}/out/${name}.dmg" artefacts/
 
-    - name: Upload mac DSYMs release asset
-      if: matrix.os == 'macOS-latest'
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      with:
-        upload_url: ${{needs.create_release.outputs.upload_url}}
-        asset_path: ${{matrix.build_dir}}/out/${{steps.mac_archivename_step.outputs.archive_name}}-dSYMs.zip
-        asset_name: ${{steps.mac_archivename_step.outputs.archive_name}}-dSYMs.zip
-        asset_content_type: application/zip
-
-    - name: Upload mac dmg release asset
-      if: matrix.os == 'macOS-latest'
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      with:
-        upload_url: ${{needs.create_release.outputs.upload_url}}
-        asset_path: ${{matrix.build_dir}}/out/${{steps.mac_archivename_step.outputs.archive_name}}.dmg
-        asset_name: ${{steps.mac_archivename_step.outputs.archive_name}}.dmg
-        asset_content_type: application/octet-stream
-
-    - name: Add msbuild to PATH (Windows)
+    # ---------- Windows ----------
+    - name: Setup Python (Windows)
       if: matrix.os == 'windows-latest'
-      uses: microsoft/setup-msbuild@v1
-
-    - name: Setup Python3
-      if: matrix.os == 'windows-latest'
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: '3.x'
         architecture: 'x64'
 
-    - name: Get Archive Name Windows
-      id: win_archivename_step
+    - name: Add MSBuild to PATH (Windows)
       if: matrix.os == 'windows-latest'
-      run: |
-        ARCHIVE_NAME=`python.exe iPlug2/Scripts/get_archive_name.py ${{env.PROJECT_NAME}} win full`
-        echo "name=archive_name::$ARCHIVE_NAME" >> $GITHUB_OUTPUT
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Get archive name (Windows)
+      id: win_archivename
+      if: matrix.os == 'windows-latest'
       shell: bash
+      run: |
+        name=$(python.exe iPlug2/Scripts/get_archive_name.py "${PROJECT_NAME}" win full)
+        echo "name=${name}" >> "$GITHUB_OUTPUT"
 
     - name: Build Windows
       if: matrix.os == 'windows-latest'
+      shell: pwsh
       run: |
         cd scripts
         .\makedist-win.bat full installer
-      shell: pwsh
 
-    - name: Upload Windows pdb release asset
+    - name: Stage Windows artefacts
       if: matrix.os == 'windows-latest'
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      with:
-        upload_url: ${{needs.create_release.outputs.upload_url}}
-        asset_path: ${{matrix.build_dir}}/out/${{steps.win_archivename_step.outputs.archive_name}}-pdbs.zip
-        asset_name: ${{steps.win_archivename_step.outputs.archive_name}}-pdbs.zip
-        asset_content_type: application/zip
+      shell: bash
+      run: |
+        mkdir -p artefacts
+        name="${{ steps.win_archivename.outputs.name }}"
+        cp "${{ matrix.build_dir }}/out/${name}-pdbs.zip" artefacts/
+        cp "${{ matrix.build_dir }}/out/${name}.zip" artefacts/
 
-    - name: Upload Windows zip release asset
-      if: matrix.os == 'windows-latest'
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+    # ---------- Upload artefacts to the workflow run ----------
+    - name: Upload workflow artefacts
+      uses: actions/upload-artifact@v4
       with:
-        upload_url: ${{needs.create_release.outputs.upload_url}}
-        asset_path: ${{matrix.build_dir}}/out/${{steps.win_archivename_step.outputs.archive_name}}.zip
-        asset_name: ${{steps.win_archivename_step.outputs.archive_name}}.zip
-        asset_content_type: application/zip
+        name: ${{ matrix.os }}-artefacts
+        path: artefacts/
+        if-no-files-found: error
+
+  publish_release:
+    name: Publish GitHub Release
+    needs: build
+    # Only publish when triggered by a tag push; manual runs only build.
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+
+    - name: Download all artefacts
+      uses: actions/download-artifact@v4
+      with:
+        path: downloaded-artefacts
+        merge-multiple: true
+
+    - name: Create GitHub Release with artefacts
+      uses: softprops/action-gh-release@v2
+      with:
+        draft: true
+        body_path: installer/changelog.txt
+        files: downloaded-artefacts/**

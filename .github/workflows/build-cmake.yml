@@ -1,21 +1,7 @@
 name: Build CMake
 
 on:
-  push:
-    paths:
-      - 'iPlug2/Scripts/cmake/**'
-      - 'iPlug2/iPlug2.cmake'
-      - '**/CMakeLists.txt'
-      - 'CMakePresets.json'
-      - '.github/workflows/build-cmake.yml'
-  pull_request:
-    paths:
-      - 'iPlug2/Scripts/cmake/**'
-      - 'iPlug2/iPlug2.cmake'
-      - '**/CMakeLists.txt'
-      - 'CMakePresets.json'
-  issue_comment:
-    types: [created]
+  # Manual-only. Real release builds happen in release-native.yml on tag push.
   workflow_dispatch:
     inputs:
       all_generators:
