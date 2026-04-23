@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>AudioComponents</key>
+	<array>
+		<dict>
+			<key>description</key>
+			<string>Fz10m</string>
+			<key>factoryFunction</key>
+			<string>Fz10m_Factory</string>
+			<key>manufacturer</key>
+			<string>Grpk</string>
+			<key>name</key>
+			<string>Grovepark: Fz10m</string>
+			<key>sandboxSafe</key>
+			<true/>
+			<key>subtype</key>
+			<string>Fz10</string>
+			<key>type</key>
+			<string>aufx</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+	</array>
+	<key>AudioUnit Version</key>
+	<string>0x00000000</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>Fz10m</string>
+	<key>CFBundleGetInfoString</key>
+	<string>Fz10m v0.0.0 Copyright 2026 Grovepark</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.Grovepark.audiounit.Fz10m</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>Fz10m</string>
+	<key>CFBundlePackageType</key>
+	<string>BNDL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.0.0</string>
+	<key>CFBundleSignature</key>
+	<string>Fz10</string>
+	<key>CFBundleVersion</key>
+	<string>0.0.0</string>
+	<key>CSResourcesFileMapped</key>
+	<true/>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.13.0</string>
+	<key>NSPrincipalClass</key>
+	<string>Fz10m_View</string>
+</dict>
+</plist>
