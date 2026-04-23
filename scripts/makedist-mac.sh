@@ -379,7 +379,7 @@ sudo rm -R -f build-mac/*-auval.zip
 
 echo "packaging auval script"
 echo ""
-zip -j ./build-mac/$ARCHIVE_NAME-auval.zip ./config.h ./../iPlug2/Scripts/validate_audiounit.sh
+zip -j ./build-mac/$ARCHIVE_NAME-auval.zip ./config.h ./iPlug2/Scripts/validate_audiounit.sh
 
 #---------------------------------------------------------------------------------------------------------
 
