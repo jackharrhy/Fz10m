@@ -44,15 +44,15 @@
 #define AAX_TYPE_IDS_AUDIOSUITE 'ITA1'
 #define AAX_PLUG_MFR_STR "Grovepark"
 #define AAX_PLUG_NAME_STR "Fz10m\nIPEF"
-#define AAX_PLUG_CATEGORY_STR "Effect"
+#define AAX_PLUG_CATEGORY_STR "Synth"
 #define AAX_DOES_AUDIOSUITE 1
 
-#define VST3_SUBCATEGORY "Fx"
+#define VST3_SUBCATEGORY "Instrument|Synth"
 
 #define CLAP_MANUAL_URL "https://iplug2.github.io/manuals/example_manual.pdf"
 #define CLAP_SUPPORT_URL "https://github.com/iPlug2/iPlug2/wiki"
-#define CLAP_DESCRIPTION "A simple audio effect for modifying gain"
-#define CLAP_FEATURES "audio-effect"//, "utility"
+#define CLAP_DESCRIPTION "Drawable-wavetable lo-fi synth (FZ-inspired)"
+#define CLAP_FEATURES "instrument"//, "synth"
 
 #define APP_NUM_CHANNELS 2
 #define APP_N_VECTOR_WAIT 0
