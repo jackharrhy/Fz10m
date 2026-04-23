@@ -49,3 +49,39 @@ validate scheme="macOS-VST3":
 setup:
     git submodule update --init --recursive
     cd iPlug2/Dependencies/IPlug && ./download-vst3-sdk.sh
+
+# Bump version, tag, and push to trigger a release build + GitHub release
+release bump="patch":
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    # Must be on main with a clean working tree.
+    branch=$(git rev-parse --abbrev-ref HEAD)
+    if [ "$branch" != "main" ]; then
+        echo "release must be run from main (currently on '$branch')" >&2
+        exit 1
+    fi
+    if ! git diff-index --quiet HEAD -- || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+        echo "working tree is not clean. commit or stash first." >&2
+        git status --short
+        exit 1
+    fi
+
+    # Bump version + regenerate Info.plists.
+    ./bump_version.py {{bump}}
+
+    # Read the new version back so we can tag it.
+    new_version=$(grep -E '^#define PLUG_VERSION_STR' config.h | sed -E 's/.*"(.+)".*/\1/')
+    echo ""
+    echo "tagging as v${new_version}"
+
+    # Commit everything bump_version.py touched + tag + push.
+    git add config.h resources/ installer/
+    git commit -m "release: v${new_version}"
+    git tag "v${new_version}"
+    git push origin main
+    git push origin "v${new_version}"
+
+    echo ""
+    echo "pushed v${new_version}. CI will now build + publish the release."
+    echo "watch progress: gh run watch  (or check the Actions tab on GitHub)"
