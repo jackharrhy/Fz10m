@@ -23,7 +23,7 @@ jobs:
           persist-credentials: false
 
       - name: setup python3
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.x'
           architecture: 'x64'
@@ -50,7 +50,7 @@ jobs:
           ./makedist-web.sh off ${{env.URL}}
           
       - name: Upload artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: ${{env.PROJECT_NAME}}-web
           path: build-web
