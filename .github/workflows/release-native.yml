@@ -50,7 +50,10 @@ jobs:
       if: matrix.os == 'macos-latest'
       shell: bash
       run: |
-        name=$(python3 iPlug2/Scripts/get_archive_name.py "${PROJECT_NAME}" mac full)
+        # get_archive_name.py takes a projectpath that contains config.h.
+        # In our flat layout config.h sits at repo root, so projectpath is "."
+        # (in the OOS layout upstream iPlug2 assumed, it would be the subdir).
+        name=$(python3 iPlug2/Scripts/get_archive_name.py . mac full)
         echo "name=${name}" >> "$GITHUB_OUTPUT"
 
     - name: Build macOS
@@ -86,7 +89,8 @@ jobs:
       if: matrix.os == 'windows-latest'
       shell: bash
       run: |
-        name=$(python.exe iPlug2/Scripts/get_archive_name.py "${PROJECT_NAME}" win full)
+        # See note above in mac step — projectpath is "." for flat layout.
+        name=$(python.exe iPlug2/Scripts/get_archive_name.py . win full)
         echo "name=${name}" >> "$GITHUB_OUTPUT"
 
     - name: Build Windows

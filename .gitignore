@@ -2,6 +2,10 @@
 xcuserdata
 *.RPP-bak
 */build-*/
+/build-mac/
+/build-ios/
+/build-win/
+/build-web/
 *.ipch
 *.db
 *.suo

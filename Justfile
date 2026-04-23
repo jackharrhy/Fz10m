@@ -131,6 +131,33 @@ test:
     echo ""
     echo "✅ all validators passed"
 
+# Dry-run the release-native CI pipeline locally (mac only; no push/tag)
+release-dry:
+    #!/usr/bin/env bash
+    set -eo pipefail
+
+    echo "=== step 1: get_archive_name (matches release-native.yml Get archive name step) ==="
+    name=$(python3 iPlug2/Scripts/get_archive_name.py . mac full)
+    echo "archive name: ${name}"
+
+    echo ""
+    echo "=== step 2: makedist-mac.sh full installer ==="
+    cd scripts && ./makedist-mac.sh full installer && cd ..
+
+    echo ""
+    echo "=== step 3: verify expected artefacts (Stage macOS artefacts step) ==="
+    for f in "build-mac/out/${name}-dSYMs.zip" "build-mac/out/${name}.dmg"; do
+        if [ -f "$f" ]; then
+            echo "✓ $f"
+        else
+            echo "✗ MISSING: $f"
+            exit 1
+        fi
+    done
+
+    echo ""
+    echo "✅ release-native.yml would succeed for macOS"
+
 # Bump version, tag, and push to trigger a release build + GitHub release
 release bump="patch":
     #!/usr/bin/env bash
