@@ -360,6 +360,8 @@
     <ClCompile Include="..\iPlug2\IPlug\IPlugPluginBase.cpp" />
     <ClCompile Include="..\iPlug2\IPlug\IPlugProcessor.cpp" />
     <ClCompile Include="..\iPlug2\IPlug\IPlugTimer.cpp" />
+    <ClCompile Include="..\iPlug2\IPlug\Extras\Synth\VoiceAllocator.cpp" />
+    <ClCompile Include="..\iPlug2\IPlug\Extras\Synth\MidiSynth.cpp" />
     <ClCompile Include="..\Fz10m.cpp" />
   </ItemGroup>
   <ItemGroup>

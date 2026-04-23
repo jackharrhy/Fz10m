@@ -388,6 +388,8 @@
     <ClCompile Include="..\iPlug2\IPlug\IPlugTimer.cpp" />
     <ClCompile Include="..\iPlug2\IPlug\VST3\IPlugVST3.cpp" />
     <ClCompile Include="..\iPlug2\IPlug\VST3\IPlugVST3_ProcessorBase.cpp" />
+    <ClCompile Include="..\iPlug2\IPlug\Extras\Synth\VoiceAllocator.cpp" />
+    <ClCompile Include="..\iPlug2\IPlug\Extras\Synth\MidiSynth.cpp" />
     <ClCompile Include="..\Fz10m.cpp" />
   </ItemGroup>
   <ItemGroup>
