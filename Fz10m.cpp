@@ -53,15 +53,18 @@ Fz10m::Fz10m(const InstanceInfo& info)
                                                       sizeof(vals), vals);
     });
 
-    // Middle row: knobs
+    // Middle row: 7 knobs in a 1×7 grid.
+    // Note: GetGridCell has two overloads. We use the 4-arg (row, col, nRows, nCols)
+    // form explicitly to avoid the 3-arg (cellIndex, nRows, nCols) overload, which
+    // would otherwise collapse to nRows=0 and misplace everything.
     const IRECT knobRow = b.ReduceFromTop(240.f).GetFromTop(140.f);
-    pGraphics->AttachControl(new IVKnobControl(knobRow.GetGridCell(0, 0, 7).GetCentredInside(100), kParamGain, "Gain"));
-    pGraphics->AttachControl(new IVKnobControl(knobRow.GetGridCell(0, 1, 7).GetCentredInside(100), kParamAttack, "Attack"));
-    pGraphics->AttachControl(new IVKnobControl(knobRow.GetGridCell(0, 2, 7).GetCentredInside(100), kParamDecay, "Decay"));
-    pGraphics->AttachControl(new IVKnobControl(knobRow.GetGridCell(0, 3, 7).GetCentredInside(100), kParamSustain, "Sustain"));
-    pGraphics->AttachControl(new IVKnobControl(knobRow.GetGridCell(0, 4, 7).GetCentredInside(100), kParamRelease, "Release"));
-    pGraphics->AttachControl(new IVKnobControl(knobRow.GetGridCell(0, 5, 7).GetCentredInside(100), kParamCutoff, "Cutoff"));
-    pGraphics->AttachControl(new IVKnobControl(knobRow.GetGridCell(0, 6, 7).GetCentredInside(100), kParamResonance, "Res"));
+    pGraphics->AttachControl(new IVKnobControl(knobRow.GetGridCell(0, 0, 1, 7).GetCentredInside(100), kParamGain, "Gain"));
+    pGraphics->AttachControl(new IVKnobControl(knobRow.GetGridCell(0, 1, 1, 7).GetCentredInside(100), kParamAttack, "Attack"));
+    pGraphics->AttachControl(new IVKnobControl(knobRow.GetGridCell(0, 2, 1, 7).GetCentredInside(100), kParamDecay, "Decay"));
+    pGraphics->AttachControl(new IVKnobControl(knobRow.GetGridCell(0, 3, 1, 7).GetCentredInside(100), kParamSustain, "Sustain"));
+    pGraphics->AttachControl(new IVKnobControl(knobRow.GetGridCell(0, 4, 1, 7).GetCentredInside(100), kParamRelease, "Release"));
+    pGraphics->AttachControl(new IVKnobControl(knobRow.GetGridCell(0, 5, 1, 7).GetCentredInside(100), kParamCutoff, "Cutoff"));
+    pGraphics->AttachControl(new IVKnobControl(knobRow.GetGridCell(0, 6, 1, 7).GetCentredInside(100), kParamResonance, "Res"));
 
     // Bottom: on-screen keyboard
     const IRECT kbBounds = b.GetFromBottom(180.f);
