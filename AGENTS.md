@@ -20,7 +20,9 @@ macOS VST3 Debug:
 xcodebuild -workspace Fz10m.xcworkspace -scheme macOS-VST3 -configuration Debug build
 ```
 
-Other schemes: `macOS-APP`, `macOS-AU`, `macOS-VST2`, `macOS-CLAP`, `macOS-AAX`, `macOS-AUv3`.
+Other schemes: `macOS-APP`, `macOS-AU`, `macOS-CLAP`, `macOS-AAX`, `macOS-AUv3`.
+
+VST2 is intentionally unsupported — the Steinberg VST2 SDK is proprietary and deprecated.
 
 Install locations are standard macOS plugin folders (`~/Library/Audio/Plug-Ins/...`).
 

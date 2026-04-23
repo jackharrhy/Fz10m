@@ -28,7 +28,7 @@ jobs:
 
     - name: Cache Prebuilt Libs
       id: cache-deps
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           iPlug2/Dependencies/Build
@@ -47,20 +47,9 @@ jobs:
         cd iPlug2/Dependencies/IPlug
         ./download-vst3-sdk.sh
 
-    - name: Get VST2 SDK
-      shell: bash
-      env:
-        VST2_SDK: ${{secrets.VST2_SDK}}
-      run: |
-        set -eo pipefail
-        mkdir tmp
-        echo $VST2_SDK | base64 -d > tmp/tmp.zip
-        unzip tmp/tmp.zip -d tmp
-        mv tmp/VST2_SDK/* iPlug2/Dependencies/IPlug/VST2_SDK
-
     - name: Cache CLAP SDK
       id: cache-clap
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           iPlug2/Dependencies/IPlug/CLAP_SDK
@@ -118,7 +107,7 @@ jobs:
 
       - name: Cache Pluginval
         id: cache-pluginval
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ./pluginval.exe
@@ -133,7 +122,7 @@ jobs:
 
       - name: Cache CLAP Validator
         id: cache-clap-validator
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ./clap-validator.exe

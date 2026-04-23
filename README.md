@@ -29,7 +29,7 @@ Open the workspace:
 open Fz10m.xcworkspace
 ```
 
-…or build from the command line. Available schemes: `macOS-APP`, `macOS-AU`, `macOS-VST2`, `macOS-VST3`, `macOS-CLAP`, `macOS-AAX`, `macOS-AUv3`.
+…or build from the command line. Available schemes: `macOS-APP`, `macOS-AU`, `macOS-VST3`, `macOS-CLAP`, `macOS-AAX`, `macOS-AUv3`.
 
 ```bash
 xcodebuild -workspace Fz10m.xcworkspace -scheme macOS-VST3 -configuration Debug build
