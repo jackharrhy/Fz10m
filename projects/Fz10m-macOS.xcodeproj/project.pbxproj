@@ -264,6 +264,22 @@
 		4FF0A83221BE708700B2C9D1 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
 		B885CBC52304AE7300D73128 /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
 		B8E22A0C220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8E22A0A220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp */; };
+		FA10A0004F20EECA132C69F0 /* VoiceAllocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7C49D2255DE0E300DF7588 /* VoiceAllocator.cpp */; };
+		FA10B0004F20EECA132C69F0 /* MidiSynth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7C49D5255DE0E300DF7588 /* MidiSynth.cpp */; };
+		FA10A0014F3AE1A212C0E5E0 /* VoiceAllocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7C49D2255DE0E300DF7588 /* VoiceAllocator.cpp */; };
+		FA10B0014F3AE1A212C0E5E0 /* MidiSynth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7C49D5255DE0E300DF7588 /* MidiSynth.cpp */; };
+		FA10A0024F3EE1C1231438D0 /* VoiceAllocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7C49D2255DE0E300DF7588 /* VoiceAllocator.cpp */; };
+		FA10B0024F3EE1C1231438D0 /* MidiSynth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7C49D5255DE0E300DF7588 /* MidiSynth.cpp */; };
+		FA10A0034F78BDFE22E73D00 /* VoiceAllocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7C49D2255DE0E300DF7588 /* VoiceAllocator.cpp */; };
+		FA10B0034F78BDFE22E73D00 /* MidiSynth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7C49D5255DE0E300DF7588 /* MidiSynth.cpp */; };
+		FA10A0044F8E0FE42BF5F3B0 /* VoiceAllocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7C49D2255DE0E300DF7588 /* VoiceAllocator.cpp */; };
+		FA10B0044F8E0FE42BF5F3B0 /* MidiSynth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7C49D5255DE0E300DF7588 /* MidiSynth.cpp */; };
+		FA10A0054F9828B5140A9EB0 /* VoiceAllocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7C49D2255DE0E300DF7588 /* VoiceAllocator.cpp */; };
+		FA10B0054F9828B5140A9EB0 /* MidiSynth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7C49D5255DE0E300DF7588 /* MidiSynth.cpp */; };
+		FA10A0064FB600171567CB00 /* VoiceAllocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7C49D2255DE0E300DF7588 /* VoiceAllocator.cpp */; };
+		FA10B0064FB600171567CB00 /* MidiSynth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7C49D5255DE0E300DF7588 /* MidiSynth.cpp */; };
+		FA10A0074FD16A0613B63080 /* VoiceAllocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7C49D2255DE0E300DF7588 /* VoiceAllocator.cpp */; };
+		FA10B0074FD16A0613B63080 /* MidiSynth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7C49D5255DE0E300DF7588 /* MidiSynth.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2248,6 +2264,8 @@
 				4F6FD2B222675B6300FC59E6 /* IGraphicsCoreText.mm in Sources */,
 				4F78D9C813B63BA50032E0F3 /* IPlugParameter.cpp in Sources */,
 				4F7C4959255DDFC400DF7588 /* IPopupMenuControl.cpp in Sources */,
+				FA10A0004F20EECA132C69F0 /* VoiceAllocator.cpp in Sources */,
+				FA10B0004F20EECA132C69F0 /* MidiSynth.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2283,6 +2301,8 @@
 				4F78D95C13B63BA50032E0F3 /* IPlugParameter.cpp in Sources */,
 				4FB1F58C20E4B006004157C8 /* IGraphicsMac.mm in Sources */,
 				4F3862F22014BBEC0009F402 /* Fz10m.cpp in Sources */,
+				FA10A0014F3AE1A212C0E5E0 /* VoiceAllocator.cpp in Sources */,
+				FA10B0014F3AE1A212C0E5E0 /* MidiSynth.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2324,6 +2344,8 @@
 				4F3EE1E3231438D000004786 /* swell-gdi.mm in Sources */,
 				4F3EE1E4231438D000004786 /* IPlugParameter.cpp in Sources */,
 				4F3EE1E5231438D000004786 /* IPlugTimer.cpp in Sources */,
+				FA10A0024F3EE1C1231438D0 /* VoiceAllocator.cpp in Sources */,
+				FA10B0024F3EE1C1231438D0 /* MidiSynth.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2352,6 +2374,8 @@
 				4F78BE2922E7406D00AD537E /* IPlugTimer.cpp in Sources */,
 				4F78BE2A22E7406D00AD537E /* IPlugPaths.mm in Sources */,
 				4F7C496B255DDFCB00DF7588 /* IPopupMenuControl.cpp in Sources */,
+				FA10A0034F78BDFE22E73D00 /* VoiceAllocator.cpp in Sources */,
+				FA10B0034F78BDFE22E73D00 /* MidiSynth.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2377,6 +2401,8 @@
 				4F61D8642D74876900578AA8 /* IPlugCLAP.cpp in Sources */,
 				4F8E0FF52BF5F3B500D360CE /* IPlugParameter.cpp in Sources */,
 				4F8E0FF62BF5F3B500D360CE /* IPopupMenuControl.cpp in Sources */,
+				FA10A0044F8E0FE42BF5F3B0 /* VoiceAllocator.cpp in Sources */,
+				FA10B0044F8E0FE42BF5F3B0 /* MidiSynth.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2433,6 +2459,8 @@
 				4F1A527E205D911A00CF2908 /* IPlugVST3.cpp in Sources */,
 				4F815988205D50EB00393585 /* coreiids.cpp in Sources */,
 				4F815993205D51F000393585 /* vstnoteexpressiontypes.cpp in Sources */,
+				FA10A0054F9828B5140A9EB0 /* VoiceAllocator.cpp in Sources */,
+				FA10B0054F9828B5140A9EB0 /* MidiSynth.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2461,6 +2489,8 @@
 				4FB600281567CB0A0020189A /* IPlugAAX_Describe.cpp in Sources */,
 				4FB1F58D20E4B007004157C8 /* IGraphicsMac.mm in Sources */,
 				4F7C4962255DDFC600DF7588 /* IPopupMenuControl.cpp in Sources */,
+				FA10A0064FB600171567CB00 /* VoiceAllocator.cpp in Sources */,
+				FA10B0064FB600171567CB00 /* MidiSynth.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2502,6 +2532,8 @@
 				4FF0A83221BE708700B2C9D1 /* swell-gdi.mm in Sources */,
 				4F78D91813B63BA50032E0F3 /* IPlugParameter.cpp in Sources */,
 				4FDAC0EA207D76C600299363 /* IPlugTimer.cpp in Sources */,
+				FA10A0074FD16A0613B63080 /* VoiceAllocator.cpp in Sources */,
+				FA10B0074FD16A0613B63080 /* MidiSynth.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
