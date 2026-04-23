@@ -11,3 +11,4 @@ mkcert*
 .claude/settings.local.json
 __pycache__
 tmp/
+.local-tools/
