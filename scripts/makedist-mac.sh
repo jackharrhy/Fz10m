@@ -21,7 +21,7 @@ fi
 #---------------------------------------------------------------------------------------------------------
 #variables
 
-IPLUG2_ROOT=../iPlug2
+IPLUG2_ROOT=./iPlug2
 XCCONFIG=$IPLUG2_ROOT/../common-mac.xcconfig
 SCRIPTS=$IPLUG2_ROOT/Scripts
 
