@@ -1,6 +1,12 @@
 Fz10m changelog
 https://github.com/jackharrhy/Fz10m
 
+2026-04-25 - v0.4.0
+  - Per-voice filter envelope (ADSR modulating cutoff with bipolar amount control)
+  - Wavetable preset waveforms: sine, triangle, saw, square, pulse, double sine, saw/pulse, random
+  - Two-row knob layout (Synth + ADSR / Filter Env + LoFi)
+  - Wavetable preset dropdown
+
 2026-04-25 - v0.3.0
   - 8-voice polyphony (matching the real Casio FZ-10M)
   - Reset button to restore all knobs and wavetable to defaults
