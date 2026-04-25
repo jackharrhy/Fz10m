@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>Fz10m</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Fz10m v0.2.0 Copyright 2026 Grovepark</string>
+	<string>Fz10m v0.2.1 Copyright 2026 Grovepark</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.Grovepark.vst.Fz10m</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -17,11 +17,11 @@
 	<key>CFBundlePackageType</key>
 	<string>BNDL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.2.0</string>
+	<string>0.2.1</string>
 	<key>CFBundleSignature</key>
 	<string>Fz10</string>
 	<key>CFBundleVersion</key>
-	<string>0.2.0</string>
+	<string>0.2.1</string>
 	<key>CSResourcesFileMapped</key>
 	<true/>
 	<key>LSMinimumSystemVersion</key>
