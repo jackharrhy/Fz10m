@@ -11,6 +11,12 @@ default:
 build scheme="macOS-VST3" config="Debug":
     xcodebuild -workspace {{workspace}} -scheme {{scheme}} -configuration {{config}} build
 
+# Build and run the standalone app (ad-hoc signed for local dev)
+app config="Debug":
+    xcodebuild -workspace {{workspace}} -scheme macOS-APP -configuration {{config}} build \
+        CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+    open ~/Applications/{{plugin_name}}.app
+
 # Open the Xcode workspace
 open:
     open {{workspace}}

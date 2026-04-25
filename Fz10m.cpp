@@ -42,23 +42,40 @@ Fz10m::Fz10m(const InstanceInfo& info)
     // Carve the full rect into three non-overlapping horizontal slices from
     // top to bottom: knobs row, wavetable, keyboard. ReduceFromTop/Bottom
     // mutates `b` to the remaining space each time.
-    const IRECT knobRow = b.ReduceFromTop(140.f);
+    const IRECT knobRow = b.ReduceFromTop(170.f);
     const IRECT kbBounds = b.ReduceFromBottom(180.f);
     const IRECT wtBounds = b; // whatever's left in between
 
-    // Top row: 10 knobs in a 1×10 grid. GetGridCell has two overloads; we use
-    // the 4-arg (row, col, nRows, nCols) form explicitly to avoid the 3-arg
-    // (cellIndex, nRows, nCols) overload that would collapse to nRows=0.
-    pGraphics->AttachControl(new IVKnobControl(knobRow.GetGridCell(0, 0, 1, 10).GetCentredInside(100), kParamGain, "Gain"));
-    pGraphics->AttachControl(new IVKnobControl(knobRow.GetGridCell(0, 1, 1, 10).GetCentredInside(100), kParamAttack, "Attack"));
-    pGraphics->AttachControl(new IVKnobControl(knobRow.GetGridCell(0, 2, 1, 10).GetCentredInside(100), kParamDecay, "Decay"));
-    pGraphics->AttachControl(new IVKnobControl(knobRow.GetGridCell(0, 3, 1, 10).GetCentredInside(100), kParamSustain, "Sustain"));
-    pGraphics->AttachControl(new IVKnobControl(knobRow.GetGridCell(0, 4, 1, 10).GetCentredInside(100), kParamRelease, "Release"));
-    pGraphics->AttachControl(new IVKnobControl(knobRow.GetGridCell(0, 5, 1, 10).GetCentredInside(100), kParamCutoff, "Cutoff"));
-    pGraphics->AttachControl(new IVKnobControl(knobRow.GetGridCell(0, 6, 1, 10).GetCentredInside(100), kParamResonance, "Res"));
-    pGraphics->AttachControl(new IVKnobControl(knobRow.GetGridCell(0, 7, 1, 10).GetCentredInside(100), kParamLoFiCharacter, "Char"));
-    pGraphics->AttachControl(new IVKnobControl(knobRow.GetGridCell(0, 8, 1, 10).GetCentredInside(100), kParamLoFiRate, "Rate"));
-    pGraphics->AttachControl(new IVKnobControl(knobRow.GetGridCell(0, 9, 1, 10).GetCentredInside(100), kParamLoFiBits, "Bits"));
+    // Top row: 10 knobs split into 3 groups (Synth 3, ADSR 4, LoFi 3).
+    // Divide into 10 equal slices, then union slices into group rects with
+    // 5px inset on each side so group borders don't overlap each other.
+    const float kGap = 5.f;
+    const IRECT synthRect = knobRow.SubRectHorizontal(10, 0).Union(knobRow.SubRectHorizontal(10, 2)).GetPadded(-kGap);
+    const IRECT adsrRect  = knobRow.SubRectHorizontal(10, 3).Union(knobRow.SubRectHorizontal(10, 6)).GetPadded(-kGap);
+    const IRECT lofiRect  = knobRow.SubRectHorizontal(10, 7).Union(knobRow.SubRectHorizontal(10, 9)).GetPadded(-kGap);
+
+    // Synth group: Gain, Cutoff, Resonance
+    pGraphics->AttachControl(new IVKnobControl(synthRect.GetGridCell(0, 0, 1, 3).GetCentredInside(90), kParamGain, "Gain"), kNoTag, "Synth");
+    pGraphics->AttachControl(new IVKnobControl(synthRect.GetGridCell(0, 1, 1, 3).GetCentredInside(90), kParamCutoff, "Cutoff"), kNoTag, "Synth");
+    pGraphics->AttachControl(new IVKnobControl(synthRect.GetGridCell(0, 2, 1, 3).GetCentredInside(90), kParamResonance, "Res"), kNoTag, "Synth");
+
+    // ADSR group: Attack, Decay, Sustain, Release
+    pGraphics->AttachControl(new IVKnobControl(adsrRect.GetGridCell(0, 0, 1, 4).GetCentredInside(90), kParamAttack, "Attack"), kNoTag, "ADSR");
+    pGraphics->AttachControl(new IVKnobControl(adsrRect.GetGridCell(0, 1, 1, 4).GetCentredInside(90), kParamDecay, "Decay"), kNoTag, "ADSR");
+    pGraphics->AttachControl(new IVKnobControl(adsrRect.GetGridCell(0, 2, 1, 4).GetCentredInside(90), kParamSustain, "Sustain"), kNoTag, "ADSR");
+    pGraphics->AttachControl(new IVKnobControl(adsrRect.GetGridCell(0, 3, 1, 4).GetCentredInside(90), kParamRelease, "Release"), kNoTag, "ADSR");
+
+    // LoFi group: Character, Rate, Bits
+    pGraphics->AttachControl(new IVKnobControl(lofiRect.GetGridCell(0, 0, 1, 3).GetCentredInside(90), kParamLoFiCharacter, "Char"), kNoTag, "LoFi");
+    pGraphics->AttachControl(new IVKnobControl(lofiRect.GetGridCell(0, 1, 1, 3).GetCentredInside(90), kParamLoFiRate, "Rate"), kNoTag, "LoFi");
+    pGraphics->AttachControl(new IVKnobControl(lofiRect.GetGridCell(0, 2, 1, 3).GetCentredInside(90), kParamLoFiBits, "Bits"), kNoTag, "LoFi");
+
+    // Group borders (attached after knobs so they auto-size around them)
+    // Padding: left, top, right, bottom. Extra top padding avoids group label
+    // overlapping with knob labels inside.
+    pGraphics->AttachControl(new IVGroupControl("Synth", "Synth", 5.f, 20.f, 5.f, 5.f));
+    pGraphics->AttachControl(new IVGroupControl("ADSR", "ADSR", 5.f, 20.f, 5.f, 5.f));
+    pGraphics->AttachControl(new IVGroupControl("LoFi", "LoFi", 5.f, 20.f, 5.f, 5.f));
 
     // Middle: wavetable drawing surface (128 sliders).
     auto* pWT = new IVMultiSliderControl<kWavetableSize>(wtBounds, "Wavetable",

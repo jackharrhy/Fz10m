@@ -268,43 +268,40 @@ public:
     using EEnvStage = typename ADSREnvelope<T>::EStage;
     switch (paramIdx)
     {
-      case 0 /* kParamGain */:
+      case kParamGain:
         mGainTarget = static_cast<T>(value / 100.0);
         break;
-      case 1 /* kParamAttack */:
-      case 2 /* kParamDecay */:
-      case 4 /* kParamRelease */:
+      case kParamAttack:
+      case kParamDecay:
+      case kParamRelease:
       {
-        // Attack=1, Decay=2, Release=4 → EStage offsets
-        const int stage = (paramIdx == 1) ? EEnvStage::kAttack
-                        : (paramIdx == 2) ? EEnvStage::kDecay
-                        :                    EEnvStage::kRelease;
+        const int stage = (paramIdx == kParamAttack)  ? EEnvStage::kAttack
+                        : (paramIdx == kParamDecay)   ? EEnvStage::kDecay
+                        :                               EEnvStage::kRelease;
         mSynth.ForEachVoice([stage, value](SynthVoice& voice) {
           static_cast<Fz10mVoice<T>&>(voice).mAmpEnv.SetStageTime(stage, value);
         });
         break;
       }
-      case 3 /* kParamSustain */:
+      case kParamSustain:
       {
-        // ADSREnvelope::Process(T sustainLevel) takes sustain as a per-sample
-        // argument. We cache it on the voice and pass it in each frame.
         const T sus = static_cast<T>(value / 100.0);
         mSynth.ForEachVoice([sus](SynthVoice& voice) {
           static_cast<Fz10mVoice<T>&>(voice).SetSustainLevel(sus);
         });
         break;
       }
-      case 5 /* kParamCutoff */:
+      case kParamCutoff:
         mSynth.ForEachVoice([value](SynthVoice& voice) {
           static_cast<Fz10mVoice<T>&>(voice).mFilter.SetFreqCPS(value);
         });
         break;
-      case 6 /* kParamResonance */:
+      case kParamResonance:
         mSynth.ForEachVoice([value](SynthVoice& voice) {
           static_cast<Fz10mVoice<T>&>(voice).mFilter.SetQ(value);
         });
         break;
-      case 7 /* kParamLoFiCharacter */:
+      case kParamLoFiCharacter:
       {
         const T amt = static_cast<T>(value / 100.0);
         mSynth.ForEachVoice([amt](SynthVoice& voice) {
@@ -312,12 +309,12 @@ public:
         });
         break;
       }
-      case 8 /* kParamLoFiRate */:
+      case kParamLoFiRate:
         mSynth.ForEachVoice([value](SynthVoice& voice) {
           static_cast<Fz10mVoice<T>&>(voice).mLoFi.SetRateHz(value);
         });
         break;
-      case 9 /* kParamLoFiBits */:
+      case kParamLoFiBits:
       {
         const int bits = static_cast<int>(value);
         mSynth.ForEachVoice([bits](SynthVoice& voice) {
