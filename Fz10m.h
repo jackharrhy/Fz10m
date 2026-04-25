@@ -17,6 +17,7 @@ enum EParams
   kParamLoFiCharacter,
   kParamLoFiRate,
   kParamLoFiBits,
+  kParamFilterStep,
   kNumParams
 };
 

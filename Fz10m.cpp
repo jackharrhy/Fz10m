@@ -25,6 +25,8 @@ Fz10m::Fz10m(const InstanceInfo& info)
                                        IParam::ShapePowCurve(2.));
   GetParam(kParamLoFiBits)->InitDouble("Bits", 8., 4., 16., 1., "bits",
                                        IParam::kFlagsNone, "LoFi");
+  GetParam(kParamFilterStep)->InitDouble("Step", 1., 1., 512., 1., "smp",
+                                         IParam::kFlagsNone, "Synth");
 
 #if IPLUG_EDITOR
   mMakeGraphicsFunc = [&]() {
