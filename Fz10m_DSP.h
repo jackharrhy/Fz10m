@@ -184,6 +184,13 @@ public:
 
       s = mLoFi.Process(s);
 
+      if (--mFilterStepCounter <= 0)
+      {
+        mFilter.SetFreqCPS(mTargetCutoff);
+        mFilter.SetQ(mTargetQ);
+        mFilterStepCounter = mFilterStepInterval;
+      }
+
       T* inPtr[1] = { &s };
       T* outPtr[1] = { &s };
       mFilter.ProcessBlock(inPtr, outPtr, 1, 1);
@@ -215,6 +222,10 @@ public:
   SVF<T> mFilter;
   LoFiStage<T> mLoFi;
   T mSustainLevel = T(0.5);
+  T mTargetCutoff = T(20000);
+  T mTargetQ = T(0.707);
+  int mFilterStepInterval = 1;
+  int mFilterStepCounter = 0;
 };
 
 /** Top-level DSP wrapper owned by the plugin. Holds the shared wavetable,
