@@ -165,7 +165,7 @@ release-dry:
     echo "✅ release-native.yml would succeed for macOS"
 
 # Bump version, tag, and push to trigger a release build + GitHub release
-release bump="patch":
+release:
     #!/usr/bin/env bash
     set -euo pipefail
 
@@ -181,16 +181,31 @@ release bump="patch":
         exit 1
     fi
 
-    # Show what's about to happen.
+    # Ask for bump type.
     current_version=$(grep -E '^#define PLUG_VERSION_STR' config.h | sed -E 's/.*"(.+)".*/\1/')
     echo "=== Fz10m Release ==="
     echo ""
-    echo "  current version:  v${current_version}"
-    echo "  bump type:        {{bump}}"
+    echo "  current version: v${current_version}"
+    echo ""
+    echo "  1) patch"
+    echo "  2) minor"
+    echo "  3) major"
+    echo ""
+    read -rp "bump type [1/2/3]: " choice
+    case "$choice" in
+        1) bump="patch" ;;
+        2) bump="minor" ;;
+        3) bump="major" ;;
+        *) echo "invalid choice."; exit 1 ;;
+    esac
+
+    # Show what's about to happen.
+    echo ""
+    echo "  bump type:        ${bump}"
     echo "  branch:           ${branch}"
     echo ""
     echo "this will:"
-    echo "  1. bump version ({{bump}}) in config.h + Info.plists"
+    echo "  1. bump version (${bump}) in config.h + Info.plists"
     echo "  2. commit the version bump"
     echo "  3. create a git tag"
     echo "  4. push to origin (triggers CI build + GitHub release)"
@@ -210,7 +225,7 @@ release bump="patch":
     fi
 
     # Bump version + regenerate Info.plists.
-    ./bump_version.py {{bump}}
+    ./bump_version.py "$bump"
 
     # Read the new version back so we can tag it.
     new_version=$(grep -E '^#define PLUG_VERSION_STR' config.h | sed -E 's/.*"(.+)".*/\1/')
