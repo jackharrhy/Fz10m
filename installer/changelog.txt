@@ -20,4 +20,4 @@ https://github.com/jackharrhy/Fz10m
   - Drawable 128-point wavetable oscillator
   - ADSR amplitude envelope
   - SVF low-pass filter with cutoff and resonance
-  - Builds as VST3, AU, CLAP on macOS
+  - Builds as VST3, AU, CLAP on macOS and VST3, CLAP on Windows
