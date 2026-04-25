@@ -34,76 +34,105 @@ LoFi:   Character (wet/dry 0-100%), Rate (9k-48k Hz), Bits (4-16)
 Wave:   Preset selector
 ```
 
-## Next up
+## Roadmap
 
-### Filter envelope
+Features in priority order. Each step should result in a release that Aaron can test.
 
-Currently filter cutoff is static (set by knob). Aaron specifically wants filter frequency controlled by an ADSR envelope per note.
+### Step 1: Filter envelope (v0.4.0)
+
+Currently filter cutoff is static (set by knob). This adds per-note filter sweeps, which is the single biggest musical upgrade.
 
 - Add a second `ADSREnvelope<T>` to `Fz10mVoice` (`mFilterEnv`)
 - New params: FilterEnvAttack, FilterEnvDecay, FilterEnvSustain, FilterEnvRelease, FilterEnvAmount
 - In `ProcessSamplesAccumulating`: `effectiveCutoff = baseCutoff + filterEnv.Process(sustain) * envAmount`
 - Trigger/release in sync with amp envelope
 
-### Lo-fi pre/post filter toggle
+**How to test:**
+- Set Cutoff low (~500 Hz), FilterEnvAmount high, short attack, medium decay. Play a note -- should hear the filter open and close per note (classic synth pluck).
+- Set FilterEnvAmount to 0 -- should sound identical to current behavior.
+- Play chords -- each note should have its own independent filter sweep.
+- Verify existing ADSR (amp envelope) still works independently.
 
-Aaron wants signal degradation toggleable to be before or after the filter in the signal path. Currently hardcoded as pre-filter.
+### Step 2: Lo-fi pre/post filter toggle (v0.4.1)
+
+Signal degradation toggleable before or after the filter. Currently hardcoded as pre-filter. Small change, but sounds very different depending on position.
 
 - Add a toggle param (pre/post)
 - Move the `mLoFi.Process(s)` call based on the toggle
 
-### Filter exploration
+**How to test:**
+- Set Character high, Rate low (9k), Bits low (8). Toggle pre/post while playing.
+- Pre-filter: lo-fi grit gets smoothed by the filter (darker, mushier).
+- Post-filter: filter output gets crushed (harsher, more digital).
+- Both should sound distinctly different. Neither should click or glitch on toggle.
 
-Aaron wants something musically interesting, not just a stock filter. Different filter types with character.
+### Step 3: Filter mode selector (v0.5.0)
 
-> A big component of this I think will be work on getting the filter to behave in a musical / interesting way. There's a lot of nuance with different filters behavior / "flavor" (i.e moog ladder filters lose bass response as resonance increases).
+Expose the SVF's existing modes. The SVF already supports low-pass, high-pass, band-pass, notch, peak, bell, and shelves. This is mostly a UI + param wiring change.
 
-> It'd be interesting to tweak stuff with the filter to find something idiosyncratic we find interesting rather than strictly going after emulation.
+- Add a `kParamFilterMode` enum param
+- Wire it to `mFilter.SetMode()` on each voice
+- Add a dropdown to the Synth group
 
-Reference: http://www.buchty.net/casio/dcf.html (Casio DCF filter info). The real FZ had a hybrid digital/analog filter -- the digital character came before the analog filtering.
+**How to test:**
+- Switch between modes while playing a note with moderate cutoff and resonance.
+- Low-pass: removes highs (current behavior).
+- High-pass: removes lows, thin sound.
+- Band-pass: only frequencies around cutoff survive, nasal/vocal.
+- Notch: removes a band at cutoff, hollow sound.
+- Verify the filter envelope (step 1) and stepped updates still work with each mode.
 
-The SVF already supports multiple modes (low-pass, high-pass, band-pass, notch, peak, bell, shelves). Could expose a mode selector as a starting point.
+### Step 4: Additive / harmonic mode (v0.6.0)
 
-### Additive / harmonic mode
+An alternative way to populate the wavetable using harmonic sliders instead of drawing.
 
-The FZ-1 had 48-harmonic additive synthesis alongside waveform drawing.
+- 16 harmonic amplitude sliders (start simple, FZ-1 had 48)
+- Render into the wavetable via direct summation
+- UI: a second multi-slider control, toggled via the Wave preset dropdown (add "Additive" entry)
+- Shares the same wavetable buffer
 
-- 16 or 48 harmonic amplitude sliders
-- Render into the wavetable via direct summation: `sum(amplitude[k] * sin(2pi * k * i / tableSize))`
-- UI: a second multi-slider control that appears when "Additive" mode is selected
-- Shares the same wavetable buffer -- just a different way to populate it
+**How to test:**
+- Select "Additive" from the Wave dropdown. Harmonic sliders should appear.
+- Set only harmonic 1 high -- should sound like a sine.
+- Add harmonics 1-4 at decreasing levels -- should sound like a rounded saw.
+- Odd harmonics only (1, 3, 5, 7) -- should sound hollow/square-ish.
+- Switch back to "Sine" preset -- wavetable should overwrite with sine.
+- Draw on the wavetable after additive -- should work (custom drawing overrides).
 
-## Longer term (Aaron's wishlist)
+### Step 5: GUI (ongoing, Aaron-led)
 
-### 4-voice FM synthesis
-
-> next level would be having 4 voices of these custom waveforms that can then do FM and reconfigured in different ways
-
-- 4 oscillators with FM routing between them
-- Coarse & fine tune control per oscillator
-- Algorithm selector (different FM routing topologies, like DX7-style)
-- Feedback per operator
-- Independent filters per oscillator
-- Independent envelopes per oscillator
-- Independent signal quality (lo-fi) per oscillator
-
-### Modulation
-
-- LFO to modulate parameters within the VST (low priority since Ableton has built-in LFOs users can route)
-- Sequencer routable to modulate different parameters
-- Modulation matrix
-
-### GUI
-
-Aaron is designing the GUI himself. Motivated by annoyance with other VST interfaces.
+Aaron is designing the custom GUI. Current stock iPlug2 controls are placeholder.
 
 > Id definitely like to cook some up!! Big interest for me in this actually also came in part from being annoyed by other vst interfaces out
 
-Current UI is stock iPlug2 controls (placeholder until Aaron's design is ready).
+This can happen in parallel with any of the above steps.
 
-### Display modes
+### Step 6: 4-voice FM synthesis (v1.0.0?)
 
-- Toggle between spectrogram and classic wave display mode for the wavetable
+The big architectural leap. Depends on everything above being solid.
+
+> next level would be having 4 voices of these custom waveforms that can then do FM and reconfigured in different ways
+
+- 4 oscillators (operators) with FM routing between them
+- Coarse & fine tune control per operator
+- Algorithm selector (DX7-style routing topologies)
+- Feedback per operator
+- Independent filters, envelopes, and lo-fi settings per operator
+
+**How to test:**
+- Algorithm with carrier only (no modulation) -- should sound like current single-osc behavior.
+- Simple 2-op FM (one modulator, one carrier) -- should produce metallic/bell tones.
+- Feedback on a single operator -- should add harmonics, eventually become noisy at high values.
+- Compare against a DX7 emulator or Dexed for sanity checking FM behavior.
+
+### Step 7: Modulation system (v1.x)
+
+Lowest priority since Ableton has built-in LFOs users can route.
+
+- LFO to modulate internal parameters
+- Step sequencer routable to parameters
+- Modulation matrix
+- Spectrogram / classic wave display toggle
 
 ## Known issues / tech debt
 
