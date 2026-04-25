@@ -5,17 +5,17 @@ Fz10m::Fz10m(const InstanceInfo& info)
 : iplug::Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
   GetParam(kParamGain)->InitDouble("Gain", 100., 0., 100., 0.01, "%");
-  GetParam(kParamAttack)->InitDouble("Attack", 10., 1., 1000., 0.1, "ms",
+  GetParam(kParamAttack)->InitDouble("Attack", 10., 5., 1000., 0.1, "ms",
                                      IParam::kFlagsNone, "ADSR",
                                      IParam::ShapePowCurve(3.));
-  GetParam(kParamDecay)->InitDouble("Decay", 10., 1., 1000., 0.1, "ms",
-                                    IParam::kFlagsNone, "ADSR",
-                                    IParam::ShapePowCurve(3.));
+  GetParam(kParamDecay)->InitDouble("Decay", 50., 20., 1000., 0.1, "ms",
+                                     IParam::kFlagsNone, "ADSR",
+                                     IParam::ShapePowCurve(3.));
   GetParam(kParamSustain)->InitDouble("Sustain", 50., 0., 100., 1., "%",
                                       IParam::kFlagsNone, "ADSR");
-  GetParam(kParamRelease)->InitDouble("Release", 10., 2., 1000., 0.1, "ms",
-                                      IParam::kFlagsNone, "ADSR",
-                                      IParam::ShapePowCurve(3.));
+  GetParam(kParamRelease)->InitDouble("Release", 50., 20., 1000., 0.1, "ms",
+                                       IParam::kFlagsNone, "ADSR",
+                                       IParam::ShapePowCurve(3.));
   GetParam(kParamCutoff)->InitFrequency("Cutoff", 20000., 20., 20000.);
   GetParam(kParamResonance)->InitDouble("Resonance", 0.707, 0.5, 10., 0.01);
   GetParam(kParamLoFiCharacter)->InitDouble("Character", 100., 0., 100., 0.1, "%",
@@ -40,6 +40,9 @@ Fz10m::Fz10m(const InstanceInfo& info)
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
 
     IRECT b = pGraphics->GetBounds().GetPadded(-20.f);
+
+    // Reset button in top-right corner.
+    const IRECT resetBounds = b.GetFromTop(24.f).GetFromRight(70.f);
 
     // Carve the full rect into three non-overlapping horizontal slices from
     // top to bottom: knobs row, wavetable, keyboard. ReduceFromTop/Bottom
@@ -79,6 +82,33 @@ Fz10m::Fz10m(const InstanceInfo& info)
     pGraphics->AttachControl(new IVGroupControl("Synth", "Synth", 5.f, 20.f, 5.f, 5.f));
     pGraphics->AttachControl(new IVGroupControl("ADSR", "ADSR", 5.f, 20.f, 5.f, 5.f));
     pGraphics->AttachControl(new IVGroupControl("LoFi", "LoFi", 5.f, 20.f, 5.f, 5.f));
+
+    // Reset button (positioned at top-right, bounds computed above).
+    pGraphics->AttachControl(new IVButtonControl(resetBounds,
+      [pGraphics](IControl* pCaller) {
+        // Reset all parameters to defaults.
+        auto* pDelegate = pGraphics->GetDelegate();
+        for (int i = 0; i < kNumParams; ++i)
+        {
+          pDelegate->BeginInformHostOfParamChangeFromUI(i);
+          pDelegate->SendParameterValueFromUI(i, pDelegate->GetParam(i)->GetDefault(true));
+          pDelegate->EndInformHostOfParamChangeFromUI(i);
+        }
+        // Reset wavetable to sine.
+        auto* pWT = pGraphics->GetControlWithTag(kCtrlTagWavetable);
+        float vals[kWavetableSize];
+        for (int i = 0; i < kWavetableSize; ++i)
+        {
+          const double v = 0.5 + 0.5 * std::sin(2.0 * M_PI * i / kWavetableSize);
+          pWT->SetValue(v, i);
+          vals[i] = static_cast<float>(v);
+        }
+        pDelegate->SendArbitraryMsgFromUI(kMsgTagWavetableChanged,
+                                          kCtrlTagWavetable,
+                                          sizeof(vals), vals);
+        // Push updated param values back to knob controls.
+        pDelegate->SendCurrentParamValuesFromDelegate();
+      }, "Reset", DEFAULT_STYLE));
 
     // Middle: wavetable drawing surface (128 sliders).
     auto* pWT = new IVMultiSliderControl<kWavetableSize>(wtBounds, "Wavetable",

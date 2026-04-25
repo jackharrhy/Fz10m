@@ -1,6 +1,12 @@
 Fz10m changelog
 https://github.com/jackharrhy/Fz10m
 
+2026-04-25 - v0.3.0
+  - 8-voice polyphony (matching the real Casio FZ-10M)
+  - Reset button to restore all knobs and wavetable to defaults
+  - Saner minimum envelope times to prevent clicks (attack 5ms, decay/release 20ms)
+  - Per-version release notes on GitHub releases
+
 2026-04-25 - v0.2.1
   - Fix knobs not showing correct positions on launch
 

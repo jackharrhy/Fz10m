@@ -154,9 +154,7 @@ public:
 
   void Trigger(double level, bool isRetrigger) override
   {
-    mOsc.Reset();  // belt-and-braces: ADSR's reset callback also triggers on attack,
-                   // but explicit reset here matches IPlugInstrument and ensures
-                   // phase alignment on every note-on regardless of env state.
+    mOsc.Reset();
     mLoFi.Reset();
     if (isRetrigger)
       mAmpEnv.Retrigger(level);
@@ -235,14 +233,15 @@ class Fz10mDSP
 {
 public:
   Fz10mDSP()
-  : mSynth(VoiceAllocator::kPolyModeMono, MidiSynth::kDefaultBlockSize)
+  : mSynth(VoiceAllocator::kPolyModePoly, MidiSynth::kDefaultBlockSize)
   {
     // Seed wavetable with one cycle of a sine
     for (int i = 0; i < kWavetableSize; ++i)
       mWavetable[i] = static_cast<T>(std::sin(2.0 * M_PI * i / kWavetableSize));
 
-    auto* pVoice = new Fz10mVoice<T>(mWavetable.data(), kWavetableSize);
-    mSynth.AddVoice(pVoice, 0);
+    // 8 voices, matching the real Casio FZ-10M.
+    for (int v = 0; v < 8; ++v)
+      mSynth.AddVoice(new Fz10mVoice<T>(mWavetable.data(), kWavetableSize), 0);
   }
 
   void Reset(double sampleRate, int blockSize)
