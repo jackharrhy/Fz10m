@@ -181,34 +181,46 @@ release:
         exit 1
     fi
 
-    # Ask for bump type.
+    # Infer the next version from the changelog. The first version in
+    # installer/changelog.txt that doesn't have a git tag is the release target.
     current_version=$(grep -E '^#define PLUG_VERSION_STR' config.h | sed -E 's/.*"(.+)".*/\1/')
+    next_version=""
+    while IFS= read -r ver; do
+        if ! git tag -l "v${ver}" | grep -q .; then
+            next_version="$ver"
+            break
+        fi
+    done < <(grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' installer/changelog.txt | sed 's/^v//')
+
+    if [ -z "$next_version" ]; then
+        echo "error: no untagged version found in installer/changelog.txt" >&2
+        echo "add a changelog entry for the next version before releasing." >&2
+        exit 1
+    fi
+
+    # Determine bump type by comparing current and next versions.
+    IFS='.' read -r cur_maj cur_min cur_pat <<< "$current_version"
+    IFS='.' read -r nxt_maj nxt_min nxt_pat <<< "$next_version"
+    if [ "$nxt_maj" -gt "$cur_maj" ]; then
+        bump="major"
+    elif [ "$nxt_min" -gt "$cur_min" ]; then
+        bump="minor"
+    else
+        bump="patch"
+    fi
+
+    # Preview release notes.
+    release_notes=$(./scripts/extract-changelog.sh "${next_version}" 2>/dev/null || true)
+    if [ -z "$release_notes" ]; then
+        echo "error: could not extract notes for v${next_version} from changelog" >&2
+        exit 1
+    fi
+
     echo "=== Fz10m Release ==="
     echo ""
-    echo "  current version: v${current_version}"
-    echo ""
-    echo "  1) patch"
-    echo "  2) minor"
-    echo "  3) major"
-    echo ""
-    read -rp "bump type [1/2/3]: " choice
-    case "$choice" in
-        1) bump="patch" ;;
-        2) bump="minor" ;;
-        3) bump="major" ;;
-        *) echo "invalid choice."; exit 1 ;;
-    esac
-
-    # Show what's about to happen.
-    echo ""
-    echo "  bump type:        ${bump}"
+    echo "  current version:  v${current_version}"
+    echo "  next version:     v${next_version} (${bump})"
     echo "  branch:           ${branch}"
-    echo ""
-    echo "this will:"
-    echo "  1. bump version (${bump}) in config.h + Info.plists"
-    echo "  2. commit the version bump"
-    echo "  3. create a git tag"
-    echo "  4. push to origin (triggers CI build + GitHub release)"
     echo ""
     echo "commits since last tag:"
     last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
@@ -218,7 +230,13 @@ release:
         git log --oneline -10
     fi
     echo ""
-    read -rp "proceed? [y/N] " confirm
+    echo "=== release notes (will be posted to GitHub) ==="
+    echo ""
+    echo "$release_notes"
+    echo ""
+    echo "================================================="
+    echo ""
+    read -rp "release v${next_version}? [y/N] " confirm
     if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
         echo "aborted."
         exit 0
@@ -227,32 +245,13 @@ release:
     # Bump version + regenerate Info.plists.
     ./bump_version.py "$bump"
 
-    # Read the new version back so we can tag it.
+    # Verify the bump produced the expected version.
     new_version=$(grep -E '^#define PLUG_VERSION_STR' config.h | sed -E 's/.*"(.+)".*/\1/')
-
-    # Verify changelog has an entry for this version and preview it.
-    # installer/changelog.txt is used as the GitHub release body.
-    release_notes=$(./scripts/extract-changelog.sh "${new_version}" 2>/dev/null || true)
-    if [ -z "$release_notes" ]; then
-        echo ""
-        echo "error: installer/changelog.txt has no entry for v${new_version}" >&2
-        echo "add a changelog entry before releasing. reverting version bump..." >&2
+    if [ "$new_version" != "$next_version" ]; then
+        echo "error: bump produced v${new_version} but expected v${next_version}" >&2
+        echo "reverting..." >&2
         git checkout -- config.h resources/ installer/
         exit 1
-    fi
-
-    echo ""
-    echo "=== release notes (will be posted to GitHub) ==="
-    echo ""
-    echo "$release_notes"
-    echo ""
-    echo "================================================="
-    echo ""
-    read -rp "release notes look good? [y/N] " notes_ok
-    if [[ ! "$notes_ok" =~ ^[Yy]$ ]]; then
-        echo "aborted. update installer/changelog.txt and try again."
-        git checkout -- config.h resources/ installer/
-        exit 0
     fi
 
     echo ""
