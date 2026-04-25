@@ -18,6 +18,13 @@ Fz10m::Fz10m(const InstanceInfo& info)
                                       IParam::ShapePowCurve(3.));
   GetParam(kParamCutoff)->InitFrequency("Cutoff", 20000., 20., 20000.);
   GetParam(kParamResonance)->InitDouble("Resonance", 0.707, 0.5, 10., 0.01);
+  GetParam(kParamLoFiCharacter)->InitDouble("Character", 100., 0., 100., 0.1, "%",
+                                            IParam::kFlagsNone, "LoFi");
+  GetParam(kParamLoFiRate)->InitDouble("Rate", 36000., 9000., 48000., 1., "Hz",
+                                       IParam::kFlagsNone, "LoFi",
+                                       IParam::ShapePowCurve(2.));
+  GetParam(kParamLoFiBits)->InitDouble("Bits", 8., 4., 16., 1., "bits",
+                                       IParam::kFlagsNone, "LoFi");
 
 #if IPLUG_EDITOR
   mMakeGraphicsFunc = [&]() {

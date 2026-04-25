@@ -14,6 +14,9 @@ enum EParams
   kParamRelease,
   kParamCutoff,
   kParamResonance,
+  kParamLoFiCharacter,
+  kParamLoFiRate,
+  kParamLoFiBits,
   kNumParams
 };
 
