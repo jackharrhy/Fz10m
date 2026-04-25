@@ -135,9 +135,19 @@ jobs:
         path: downloaded-artefacts
         merge-multiple: true
 
+    - name: Extract release notes for this version
+      id: notes
+      run: |
+        version="${GITHUB_REF_NAME#v}"
+        notes=$(./scripts/extract-changelog.sh "$version")
+        # Use heredoc delimiter for multiline output
+        echo "body<<RELEASE_NOTES_EOF" >> "$GITHUB_OUTPUT"
+        echo "$notes" >> "$GITHUB_OUTPUT"
+        echo "RELEASE_NOTES_EOF" >> "$GITHUB_OUTPUT"
+
     - name: Create GitHub Release with artefacts
       uses: softprops/action-gh-release@v2
       with:
         draft: true
-        body_path: installer/changelog.txt
+        body: ${{ steps.notes.outputs.body }}
         files: downloaded-artefacts/**
