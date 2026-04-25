@@ -52,6 +52,86 @@ private:
   int mTableSize = 0;
 };
 
+/** Per-voice lo-fi effect: sample-rate hold + bit-depth quantization.
+ *  Simulates lower sample rates by holding values, and lower bit depths
+ *  by quantizing amplitude. Amount blends between clean and processed. */
+template <typename T>
+class LoFiStage
+{
+public:
+  LoFiStage() = default;
+
+  void SetSampleRate(double hostSampleRate) { mHostSampleRate = hostSampleRate; }
+
+  /** Target lo-fi rate in Hz (e.g. 36000, 18000, 9000).
+   *  Values >= hostSampleRate effectively bypass the hold. */
+  void SetRateHz(double rateHz) { mRateHz = rateHz; }
+
+  /** Bit depth for quantization (e.g. 8, 12, 16).
+   *  16 is effectively transparent. */
+  void SetBits(int bits) { mBits = bits; }
+
+  /** Wet/dry blend: 0 = fully clean, 1 = fully crushed. */
+  void SetAmount(T amount) { mAmount = amount; }
+
+  void Reset()
+  {
+    mPhase = 0.0;
+    mHeld = T(0);
+    mInitialized = false;
+  }
+
+  T Process(T input)
+  {
+    // Bypass: rate at or above host rate AND bits >= 16 means no effect
+    if (mAmount <= T(0))
+      return input;
+
+    // Sample-rate hold via phase accumulator
+    if (!mInitialized)
+    {
+      mHeld = _Quantize(input);
+      mInitialized = true;
+    }
+
+    if (mRateHz < mHostSampleRate)
+    {
+      mPhase += mRateHz / mHostSampleRate;
+      if (mPhase >= 1.0)
+      {
+        mPhase -= 1.0;
+        mHeld = _Quantize(input);
+      }
+    }
+    else
+    {
+      // No rate reduction, but still quantize
+      mHeld = _Quantize(input);
+    }
+
+    // Blend clean input with held/quantized output
+    return input + mAmount * (mHeld - input);
+  }
+
+private:
+  T _Quantize(T input) const
+  {
+    if (mBits >= 16) return input;
+    const T levels = static_cast<T>(1 << mBits);
+    // Clamp to [-1, 1], quantize, then scale back
+    const T clamped = std::max(T(-1), std::min(T(1), input));
+    return std::round(clamped * levels) / levels;
+  }
+
+  double mHostSampleRate = 48000.0;
+  double mRateHz = 36000.0;
+  double mPhase = 0.0;
+  int mBits = 8;
+  T mAmount = T(1);
+  T mHeld = T(0);
+  bool mInitialized = false;
+};
+
 /** One voice of the synth. Owns oscillator, amp envelope, and filter.
  *  Constructed with a pointer to the shared wavetable buffer. */
 template <typename T>
