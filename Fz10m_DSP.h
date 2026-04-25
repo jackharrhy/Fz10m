@@ -361,6 +361,35 @@ public:
         });
         break;
       }
+      case kParamFEnvAttack:
+      case kParamFEnvDecay:
+      case kParamFEnvRelease:
+      {
+        using EEnvStage = typename ADSREnvelope<T>::EStage;
+        const int stage = (paramIdx == kParamFEnvAttack)  ? EEnvStage::kAttack
+                        : (paramIdx == kParamFEnvDecay)   ? EEnvStage::kDecay
+                        :                                   EEnvStage::kRelease;
+        mSynth.ForEachVoice([stage, value](SynthVoice& voice) {
+          static_cast<Fz10mVoice<T>&>(voice).mFilterEnv.SetStageTime(stage, value);
+        });
+        break;
+      }
+      case kParamFEnvSustain:
+      {
+        const T sus = static_cast<T>(value / 100.0);
+        mSynth.ForEachVoice([sus](SynthVoice& voice) {
+          static_cast<Fz10mVoice<T>&>(voice).mFilterEnvSustain = sus;
+        });
+        break;
+      }
+      case kParamFEnvAmount:
+      {
+        const T amt = static_cast<T>(value / 100.0);
+        mSynth.ForEachVoice([amt](SynthVoice& voice) {
+          static_cast<Fz10mVoice<T>&>(voice).mFilterEnvAmount = amt;
+        });
+        break;
+      }
       default:
         break;
     }
