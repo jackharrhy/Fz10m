@@ -157,8 +157,12 @@ int Fz10m::UnserializeState(const IByteChunk& chunk, int startPos)
 
 void Fz10m::OnUIOpen()
 {
+  // Base class pushes all parameter values to knob controls.
+  Plugin::OnUIOpen();
+
 #if IPLUG_DSP
   // Push the current wavetable state to the UI multi-slider control.
+  // (Wavetable is custom state, not a parameter, so the base class doesn't handle it.)
   if (GetUI())
   {
     auto* pWT = GetUI()->GetControlWithTag(kCtrlTagWavetable);
