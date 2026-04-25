@@ -1,10 +1,23 @@
 Fz10m changelog
 https://github.com/jackharrhy/Fz10m
 
+2026-04-25 - v0.2.1
+  - Fix knobs not showing correct positions on launch
+
+2026-04-25 - v0.2.0
+  - Wavetable now persists across GUI close/reopen and project save/load
+  - Versioned state serialization for forward-compatible project files
+
+2026-04-25 - v0.1.0
+  - Per-voice lo-fi stage: sample-rate hold, bit-depth quantization, character blend
+  - Stepped filter coefficient updates for FZ-inspired zipper character
+  - UI knobs grouped into Synth / ADSR / LoFi sections
+  - Replaced placeholder metadata with real Grovepark/Fz10m values
+  - Release now prompts for bump type and confirmation before pushing
+  - `just app` recipe for quick standalone testing
+
 2026-04-24 - v0.0.1 initial release
   - Drawable 128-point wavetable oscillator
   - ADSR amplitude envelope
   - SVF low-pass filter with cutoff and resonance
-  - Per-voice lo-fi stage (sample-rate hold, bit-depth quantization, character blend)
-  - Stepped filter coefficient updates for FZ-inspired zipper character
   - Builds as VST3, AU, CLAP on macOS
