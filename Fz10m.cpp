@@ -158,7 +158,8 @@ int Fz10m::UnserializeState(const IByteChunk& chunk, int startPos)
 void Fz10m::OnUIOpen()
 {
   // Base class pushes all parameter values to knob controls.
-  Plugin::OnUIOpen();
+  // Fully qualified to avoid ambiguity with CLAP helpers' Plugin class.
+  iplug::Plugin::OnUIOpen();
 
 #if IPLUG_DSP
   // Push the current wavetable state to the UI multi-slider control.
