@@ -229,6 +229,17 @@ release:
 
     # Read the new version back so we can tag it.
     new_version=$(grep -E '^#define PLUG_VERSION_STR' config.h | sed -E 's/.*"(.+)".*/\1/')
+
+    # Verify changelog has an entry for this version.
+    # installer/changelog.txt is used as the GitHub release body.
+    if ! grep -q "v${new_version}" installer/changelog.txt; then
+        echo ""
+        echo "error: installer/changelog.txt has no entry for v${new_version}" >&2
+        echo "add a changelog entry before releasing. reverting version bump..." >&2
+        git checkout -- config.h resources/ installer/
+        exit 1
+    fi
+
     echo ""
     echo "tagging as v${new_version}"
 
