@@ -48,18 +48,19 @@ Fz10m::Fz10m(const InstanceInfo& info)
     const IRECT kbBounds = b.ReduceFromBottom(180.f);
     const IRECT wtBounds = b; // whatever's left in between
 
-    // Top row: 10 knobs split into 3 groups (Synth 3, ADSR 4, LoFi 3).
-    // Divide into 10 equal slices, then union slices into group rects with
+    // Top row: 11 knobs split into 3 groups (Synth 4, ADSR 4, LoFi 3).
+    // Divide into 11 equal slices, then union slices into group rects with
     // 5px inset on each side so group borders don't overlap each other.
     const float kGap = 5.f;
-    const IRECT synthRect = knobRow.SubRectHorizontal(10, 0).Union(knobRow.SubRectHorizontal(10, 2)).GetPadded(-kGap);
-    const IRECT adsrRect  = knobRow.SubRectHorizontal(10, 3).Union(knobRow.SubRectHorizontal(10, 6)).GetPadded(-kGap);
-    const IRECT lofiRect  = knobRow.SubRectHorizontal(10, 7).Union(knobRow.SubRectHorizontal(10, 9)).GetPadded(-kGap);
+    const IRECT synthRect = knobRow.SubRectHorizontal(11, 0).Union(knobRow.SubRectHorizontal(11, 3)).GetPadded(-kGap);
+    const IRECT adsrRect  = knobRow.SubRectHorizontal(11, 4).Union(knobRow.SubRectHorizontal(11, 7)).GetPadded(-kGap);
+    const IRECT lofiRect  = knobRow.SubRectHorizontal(11, 8).Union(knobRow.SubRectHorizontal(11, 10)).GetPadded(-kGap);
 
-    // Synth group: Gain, Cutoff, Resonance
-    pGraphics->AttachControl(new IVKnobControl(synthRect.GetGridCell(0, 0, 1, 3).GetCentredInside(90), kParamGain, "Gain"), kNoTag, "Synth");
-    pGraphics->AttachControl(new IVKnobControl(synthRect.GetGridCell(0, 1, 1, 3).GetCentredInside(90), kParamCutoff, "Cutoff"), kNoTag, "Synth");
-    pGraphics->AttachControl(new IVKnobControl(synthRect.GetGridCell(0, 2, 1, 3).GetCentredInside(90), kParamResonance, "Res"), kNoTag, "Synth");
+    // Synth group: Gain, Cutoff, Resonance, Step
+    pGraphics->AttachControl(new IVKnobControl(synthRect.GetGridCell(0, 0, 1, 4).GetCentredInside(90), kParamGain, "Gain"), kNoTag, "Synth");
+    pGraphics->AttachControl(new IVKnobControl(synthRect.GetGridCell(0, 1, 1, 4).GetCentredInside(90), kParamCutoff, "Cutoff"), kNoTag, "Synth");
+    pGraphics->AttachControl(new IVKnobControl(synthRect.GetGridCell(0, 2, 1, 4).GetCentredInside(90), kParamResonance, "Res"), kNoTag, "Synth");
+    pGraphics->AttachControl(new IVKnobControl(synthRect.GetGridCell(0, 3, 1, 4).GetCentredInside(90), kParamFilterStep, "Step"), kNoTag, "Synth");
 
     // ADSR group: Attack, Decay, Sustain, Release
     pGraphics->AttachControl(new IVKnobControl(adsrRect.GetGridCell(0, 0, 1, 4).GetCentredInside(90), kParamAttack, "Attack"), kNoTag, "ADSR");
