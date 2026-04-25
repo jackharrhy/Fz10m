@@ -1,4 +1,10 @@
 Fz10m changelog
-www.acmeinc.com
+https://github.com/jackharrhy/Fz10m
 
-00/00/0000 - v0.0.0 initial release
+2026-04-24 - v0.0.1 initial release
+  - Drawable 128-point wavetable oscillator
+  - ADSR amplitude envelope
+  - SVF low-pass filter with cutoff and resonance
+  - Per-voice lo-fi stage (sample-rate hold, bit-depth quantization, character blend)
+  - Stepped filter coefficient updates for FZ-inspired zipper character
+  - Builds as VST3, AU, CLAP on macOS

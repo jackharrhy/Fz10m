@@ -4,8 +4,8 @@
 #define PLUG_VERSION_STR "0.0.1"
 #define PLUG_UNIQUE_ID 'Fz10'
 #define PLUG_MFR_ID 'Grpk'
-#define PLUG_URL_STR "https://iplug2.github.io"
-#define PLUG_EMAIL_STR "spam@me.com"
+#define PLUG_URL_STR "https://github.com/jackharrhy/Fz10m"
+#define PLUG_EMAIL_STR ""
 #define PLUG_COPYRIGHT_STR "Copyright 2026 Grovepark"
 #define PLUG_CLASS_NAME Fz10m
 
@@ -49,8 +49,8 @@
 
 #define VST3_SUBCATEGORY "Instrument|Synth"
 
-#define CLAP_MANUAL_URL "https://iplug2.github.io/manuals/example_manual.pdf"
-#define CLAP_SUPPORT_URL "https://github.com/iPlug2/iPlug2/wiki"
+#define CLAP_MANUAL_URL "https://github.com/jackharrhy/Fz10m"
+#define CLAP_SUPPORT_URL "https://github.com/jackharrhy/Fz10m/issues"
 #define CLAP_DESCRIPTION "Drawable-wavetable lo-fi synth (FZ-inspired)"
 #define CLAP_FEATURES "instrument"//, "synth"
 

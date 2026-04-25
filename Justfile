@@ -181,6 +181,34 @@ release bump="patch":
         exit 1
     fi
 
+    # Show what's about to happen.
+    current_version=$(grep -E '^#define PLUG_VERSION_STR' config.h | sed -E 's/.*"(.+)".*/\1/')
+    echo "=== Fz10m Release ==="
+    echo ""
+    echo "  current version:  v${current_version}"
+    echo "  bump type:        {{bump}}"
+    echo "  branch:           ${branch}"
+    echo ""
+    echo "this will:"
+    echo "  1. bump version ({{bump}}) in config.h + Info.plists"
+    echo "  2. commit the version bump"
+    echo "  3. create a git tag"
+    echo "  4. push to origin (triggers CI build + GitHub release)"
+    echo ""
+    echo "commits since last tag:"
+    last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+    if [ -n "$last_tag" ]; then
+        git log --oneline "${last_tag}..HEAD"
+    else
+        git log --oneline -10
+    fi
+    echo ""
+    read -rp "proceed? [y/N] " confirm
+    if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+        echo "aborted."
+        exit 0
+    fi
+
     # Bump version + regenerate Info.plists.
     ./bump_version.py {{bump}}
 

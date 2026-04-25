@@ -1,4 +1,5 @@
-Fz10m changelog
-www.acmeinc.com
+Fz10m known issues
+https://github.com/jackharrhy/Fz10m/issues
 
-00/00/00 - v1.00 initial release
+- Drawn waveform is not saved with plugin state (resets to sine on reload)
+- Wavetable updates from UI are not thread-synchronized (rare clicks possible)

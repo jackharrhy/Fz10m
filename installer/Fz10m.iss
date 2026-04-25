@@ -1,12 +1,12 @@
 [Setup]
 AppName=Fz10m
-AppContact=spam@spam.com
-AppCopyright=Copyright (C) 2025 MANUFACTURER
-AppPublisher=MANUFACTURER
-AppPublisherURL=http://www.spam.com
-AppSupportURL=http://www.spam.com
+AppContact=
+AppCopyright=Copyright (C) 2026 Grovepark
+AppPublisher=Grovepark
+AppPublisherURL=https://github.com/jackharrhy/Fz10m
+AppSupportURL=https://github.com/jackharrhy/Fz10m/issues
 AppVersion=0.0.1
-VersionInfoVersion=1.0.0
+VersionInfoVersion=0.0.1
 DefaultDirName={pf}\Fz10m
 DefaultGroupName=Fz10m
 Compression=lzma2

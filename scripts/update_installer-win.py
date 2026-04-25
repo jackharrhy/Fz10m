@@ -35,8 +35,10 @@ def main():
   print("Updating Windows Installer version info...")
   
   for line in fileinput.input(projectpath + "/installer/" + config['BUNDLE_NAME'] + ".iss",inplace=1):
-    if "AppVersion" in line:
+    if line.startswith("AppVersion="):
       line="AppVersion=" + config['FULL_VER_STR'] + "\n"
+    if line.startswith("VersionInfoVersion="):
+      line="VersionInfoVersion=" + config['FULL_VER_STR'] + "\n"
     if "OutputBaseFilename" in line:
       if demo:
         line="OutputBaseFilename=Fz10m Demo Installer\n"
