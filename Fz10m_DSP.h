@@ -157,6 +157,7 @@ public:
     mOsc.Reset();  // belt-and-braces: ADSR's reset callback also triggers on attack,
                    // but explicit reset here matches IPlugInstrument and ensures
                    // phase alignment on every note-on regardless of env state.
+    mLoFi.Reset();
     if (isRetrigger)
       mAmpEnv.Retrigger(level);
     else
@@ -181,6 +182,8 @@ public:
     {
       T s = mOsc.Process(freqHz);
 
+      s = mLoFi.Process(s);
+
       T* inPtr[1] = { &s };
       T* outPtr[1] = { &s };
       mFilter.ProcessBlock(inPtr, outPtr, 1, 1);
@@ -198,6 +201,7 @@ public:
     mAmpEnv.SetSampleRate(sampleRate);
     mFilter.SetSampleRate(sampleRate);
     mFilter.Reset();
+    mLoFi.SetSampleRate(sampleRate);
   }
 
   void SetProgramNumber(int pgm) override {}
@@ -209,6 +213,7 @@ public:
   WavetableOscillator<T> mOsc;
   ADSREnvelope<T> mAmpEnv;
   SVF<T> mFilter;
+  LoFiStage<T> mLoFi;
   T mSustainLevel = T(0.5);
 };
 
