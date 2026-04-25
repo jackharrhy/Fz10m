@@ -304,12 +304,14 @@ public:
       }
       case kParamCutoff:
         mSynth.ForEachVoice([value](SynthVoice& voice) {
-          static_cast<Fz10mVoice<T>&>(voice).mFilter.SetFreqCPS(value);
+          auto& v = static_cast<Fz10mVoice<T>&>(voice);
+          v.mTargetCutoff = static_cast<T>(value);
         });
         break;
       case kParamResonance:
         mSynth.ForEachVoice([value](SynthVoice& voice) {
-          static_cast<Fz10mVoice<T>&>(voice).mFilter.SetQ(value);
+          auto& v = static_cast<Fz10mVoice<T>&>(voice);
+          v.mTargetQ = static_cast<T>(value);
         });
         break;
       case kParamLoFiCharacter:
@@ -330,6 +332,14 @@ public:
         const int bits = static_cast<int>(value);
         mSynth.ForEachVoice([bits](SynthVoice& voice) {
           static_cast<Fz10mVoice<T>&>(voice).mLoFi.SetBits(bits);
+        });
+        break;
+      }
+      case kParamFilterStep:
+      {
+        const int interval = static_cast<int>(value);
+        mSynth.ForEachVoice([interval](SynthVoice& voice) {
+          static_cast<Fz10mVoice<T>&>(voice).mFilterStepInterval = interval;
         });
         break;
       }
