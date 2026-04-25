@@ -5,6 +5,19 @@
 
 const int kNumPresets = 1;
 
+enum EWavePreset
+{
+  kPresetSine = 0,
+  kPresetTriangle,
+  kPresetSawtooth,
+  kPresetSquare,
+  kPresetPulse,
+  kPresetDoubleSine,
+  kPresetSawPulse,
+  kPresetRandom,
+  kNumWavePresets
+};
+
 enum EParams
 {
   kParamGain = 0,
@@ -18,6 +31,12 @@ enum EParams
   kParamLoFiRate,
   kParamLoFiBits,
   kParamFilterStep,
+  kParamFEnvAttack,
+  kParamFEnvDecay,
+  kParamFEnvSustain,
+  kParamFEnvRelease,
+  kParamFEnvAmount,
+  kParamWavePreset,
   kNumParams
 };
 

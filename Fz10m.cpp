@@ -1,6 +1,46 @@
 #include "Fz10m.h"
 #include "IPlug_include_in_plug_src.h"
 
+// Generate a preset waveform as 0..1 UI slider values into vals[kWavetableSize].
+static void GenerateWavePreset(int preset, float* vals)
+{
+  constexpr int N = kWavetableSize;
+  for (int i = 0; i < N; ++i)
+  {
+    double v = 0.0;
+    const double phase = static_cast<double>(i) / N;
+    switch (preset)
+    {
+      case kPresetSine:
+        v = std::sin(2.0 * M_PI * phase);
+        break;
+      case kPresetTriangle:
+        v = 2.0 / M_PI * std::asin(std::sin(2.0 * M_PI * phase));
+        break;
+      case kPresetSawtooth:
+        v = 2.0 * phase - 1.0;
+        break;
+      case kPresetSquare:
+        v = phase < 0.5 ? 1.0 : -1.0;
+        break;
+      case kPresetPulse:
+        v = phase < 0.25 ? 1.0 : -1.0;
+        break;
+      case kPresetDoubleSine:
+        v = std::sin(4.0 * M_PI * phase);
+        break;
+      case kPresetSawPulse:
+        v = phase < 0.5 ? (4.0 * phase - 1.0) : -1.0;
+        break;
+      case kPresetRandom:
+        v = (static_cast<double>(std::rand()) / RAND_MAX) * 2.0 - 1.0;
+        break;
+    }
+    // Map -1..+1 to 0..1 for UI sliders
+    vals[i] = static_cast<float>(v * 0.5 + 0.5);
+  }
+}
+
 Fz10m::Fz10m(const InstanceInfo& info)
 : iplug::Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
@@ -26,7 +66,24 @@ Fz10m::Fz10m(const InstanceInfo& info)
   GetParam(kParamLoFiBits)->InitDouble("Bits", 8., 4., 16., 1., "bits",
                                        IParam::kFlagsNone, "LoFi");
   GetParam(kParamFilterStep)->InitDouble("Step", 1., 1., 512., 1., "smp",
-                                         IParam::kFlagsNone, "Synth");
+                                           IParam::kFlagsNone, "Synth");
+  GetParam(kParamFEnvAttack)->InitDouble("FAtk", 10., 5., 1000., 0.1, "ms",
+                                          IParam::kFlagsNone, "FiltEnv",
+                                          IParam::ShapePowCurve(3.));
+  GetParam(kParamFEnvDecay)->InitDouble("FDec", 200., 20., 1000., 0.1, "ms",
+                                         IParam::kFlagsNone, "FiltEnv",
+                                         IParam::ShapePowCurve(3.));
+  GetParam(kParamFEnvSustain)->InitDouble("FSus", 0., 0., 100., 1., "%",
+                                           IParam::kFlagsNone, "FiltEnv");
+  GetParam(kParamFEnvRelease)->InitDouble("FRel", 50., 20., 1000., 0.1, "ms",
+                                           IParam::kFlagsNone, "FiltEnv",
+                                           IParam::ShapePowCurve(3.));
+  GetParam(kParamFEnvAmount)->InitDouble("FAmt", 0., -100., 100., 0.1, "%",
+                                          IParam::kFlagsNone, "FiltEnv");
+  GetParam(kParamWavePreset)->InitEnum("Wave", kPresetSine, kNumWavePresets,
+                                        "", IParam::kFlagsNone, "",
+                                        "Sine", "Triangle", "Sawtooth", "Square",
+                                        "Pulse", "Dbl Sine", "Saw/Pulse", "Random");
 
 #if IPLUG_EDITOR
   mMakeGraphicsFunc = [&]() {
@@ -94,15 +151,12 @@ Fz10m::Fz10m(const InstanceInfo& info)
           pDelegate->SendParameterValueFromUI(i, pDelegate->GetParam(i)->GetDefault(true));
           pDelegate->EndInformHostOfParamChangeFromUI(i);
         }
-        // Reset wavetable to sine.
+        // Reset wavetable to sine (matching default kParamWavePreset).
         auto* pWT = pGraphics->GetControlWithTag(kCtrlTagWavetable);
         float vals[kWavetableSize];
+        GenerateWavePreset(kPresetSine, vals);
         for (int i = 0; i < kWavetableSize; ++i)
-        {
-          const double v = 0.5 + 0.5 * std::sin(2.0 * M_PI * i / kWavetableSize);
-          pWT->SetValue(v, i);
-          vals[i] = static_cast<float>(v);
-        }
+          pWT->SetValue(vals[i], i);
         pDelegate->SendArbitraryMsgFromUI(kMsgTagWavetableChanged,
                                           kCtrlTagWavetable,
                                           sizeof(vals), vals);
@@ -110,8 +164,14 @@ Fz10m::Fz10m(const InstanceInfo& info)
         pDelegate->SendCurrentParamValuesFromDelegate();
       }, "Reset", DEFAULT_STYLE));
 
-    // Middle: wavetable drawing surface (128 sliders).
-    auto* pWT = new IVMultiSliderControl<kWavetableSize>(wtBounds, "Wavetable",
+    // Wavetable preset dropdown above the wavetable, top-left.
+    const IRECT presetRow = b.ReduceFromTop(50.f);
+    pGraphics->AttachControl(new IVMenuButtonControl(presetRow.GetFromLeft(120.f),
+                                                      kParamWavePreset, "Wave", DEFAULT_STYLE));
+
+    // Full-width wavetable drawing surface.
+    const IRECT wtDrawBounds = b;
+    auto* pWT = new IVMultiSliderControl<kWavetableSize>(wtDrawBounds, "Wavetable",
                                                          DEFAULT_STYLE);
     pGraphics->AttachControl(pWT, kCtrlTagWavetable);
     // Initialize to a sine (slider values are 0..1; actual wavetable samples
@@ -241,6 +301,26 @@ void Fz10m::OnReset()
 
 void Fz10m::OnParamChange(int paramIdx)
 {
+  if (paramIdx == kParamWavePreset)
+  {
+    // Generate the preset waveform and push to DSP + UI.
+    float vals[kWavetableSize];
+    GenerateWavePreset(static_cast<int>(GetParam(kParamWavePreset)->Value()), vals);
+    mDSP.UpdateWavetable(vals, kWavetableSize);
+
+    if (GetUI())
+    {
+      auto* pWT = GetUI()->GetControlWithTag(kCtrlTagWavetable);
+      if (pWT)
+      {
+        for (int i = 0; i < kWavetableSize; ++i)
+          pWT->SetValue(vals[i], i);
+        pWT->SetDirty(false);
+      }
+    }
+    return;
+  }
+
   mDSP.SetParam(paramIdx, GetParam(paramIdx)->Value());
 }
 
