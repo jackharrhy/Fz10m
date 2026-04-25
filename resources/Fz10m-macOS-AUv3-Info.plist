@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>Fz10m</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Fz10m v0.1.0 Copyright 2026 Grovepark</string>
+	<string>Fz10m v0.2.0 Copyright 2026 Grovepark</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.Grovepark.app.Fz10m.AUv3</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -17,9 +17,9 @@
 	<key>CFBundlePackageType</key>
 	<string>XPC!</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.1.0</string>
+	<string>0.2.0</string>
 	<key>CFBundleVersion</key>
-	<string>0.1.0</string>
+	<string>0.2.0</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>10.13.0</string>
 	<key>NSExtension</key>
@@ -48,7 +48,7 @@
 					<key>type</key>
 					<string>aumu</string>
 					<key>version</key>
-					<integer>256</integer>
+					<integer>512</integer>
 				</dict>
 			</array>
 		</dict>
