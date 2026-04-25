@@ -145,6 +145,7 @@ public:
     mFilter.SetMode(SVF<T>::kLowPass);
     mFilter.SetFreqCPS(20000.0);
     mFilter.SetQ(0.707);
+    mFilterEnv.SetSampleRate(48000.0);
   }
 
   bool GetBusy() const override
@@ -157,14 +158,21 @@ public:
     mOsc.Reset();
     mLoFi.Reset();
     if (isRetrigger)
+    {
       mAmpEnv.Retrigger(level);
+      mFilterEnv.Retrigger(level);
+    }
     else
+    {
       mAmpEnv.Start(level);
+      mFilterEnv.Start(level);
+    }
   }
 
   void Release() override
   {
     mAmpEnv.Release();
+    mFilterEnv.Release();
   }
 
   void ProcessSamplesAccumulating(T** inputs, T** outputs, int nInputs, int nOutputs,
@@ -182,9 +190,15 @@ public:
 
       s = mLoFi.Process(s);
 
+      // Advance filter envelope every sample for accurate timing.
+      mFilterEnvVal = mFilterEnv.Process(mFilterEnvSustain);
+
       if (--mFilterStepCounter <= 0)
       {
-        mFilter.SetFreqCPS(mTargetCutoff);
+        // Apply filter envelope modulation to cutoff.
+        T effectiveCutoff = mTargetCutoff + mFilterEnvVal * mFilterEnvAmount * T(20000);
+        effectiveCutoff = std::max(T(20), std::min(T(20000), effectiveCutoff));
+        mFilter.SetFreqCPS(effectiveCutoff);
         mFilter.SetQ(mTargetQ);
         mFilterStepCounter = mFilterStepInterval;
       }
@@ -204,6 +218,7 @@ public:
   {
     mOsc.SetSampleRate(sampleRate);
     mAmpEnv.SetSampleRate(sampleRate);
+    mFilterEnv.SetSampleRate(sampleRate);
     mFilter.SetSampleRate(sampleRate);
     mFilter.Reset();
     mLoFi.SetSampleRate(sampleRate);
@@ -224,6 +239,10 @@ public:
   T mTargetQ = T(0.707);
   int mFilterStepInterval = 1;
   int mFilterStepCounter = 0;
+  ADSREnvelope<T> mFilterEnv;
+  T mFilterEnvAmount = T(0);
+  T mFilterEnvSustain = T(0);
+  T mFilterEnvVal = T(0);
 };
 
 /** Top-level DSP wrapper owned by the plugin. Holds the shared wavetable,
