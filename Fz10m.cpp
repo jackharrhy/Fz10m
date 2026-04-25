@@ -104,40 +104,47 @@ Fz10m::Fz10m(const InstanceInfo& info)
     // Carve the full rect into three non-overlapping horizontal slices from
     // top to bottom: knobs row, wavetable, keyboard. ReduceFromTop/Bottom
     // mutates `b` to the remaining space each time.
-    const IRECT knobRow = b.ReduceFromTop(170.f);
+    // Two rows of knobs, 80px each, with grouped sections.
+    const float kGap = 5.f;
+    const float kKnobSize = 80.f;
+    const IRECT row1 = b.ReduceFromTop(150.f);
+    const IRECT row2 = b.ReduceFromTop(150.f);
+
     const IRECT kbBounds = b.ReduceFromBottom(180.f);
     const IRECT wtBounds = b; // whatever's left in between
 
-    // Top row: 11 knobs split into 3 groups (Synth 4, ADSR 4, LoFi 3).
-    // Divide into 11 equal slices, then union slices into group rects with
-    // 5px inset on each side so group borders don't overlap each other.
-    const float kGap = 5.f;
-    const IRECT synthRect = knobRow.SubRectHorizontal(11, 0).Union(knobRow.SubRectHorizontal(11, 3)).GetPadded(-kGap);
-    const IRECT adsrRect  = knobRow.SubRectHorizontal(11, 4).Union(knobRow.SubRectHorizontal(11, 7)).GetPadded(-kGap);
-    const IRECT lofiRect  = knobRow.SubRectHorizontal(11, 8).Union(knobRow.SubRectHorizontal(11, 10)).GetPadded(-kGap);
+    // Row 1: Synth (4) + ADSR (4) = 8 knobs in an 8-column grid
+    const IRECT synthRect = row1.SubRectHorizontal(8, 0).Union(row1.SubRectHorizontal(8, 3)).GetPadded(-kGap);
+    const IRECT adsrRect  = row1.SubRectHorizontal(8, 4).Union(row1.SubRectHorizontal(8, 7)).GetPadded(-kGap);
 
-    // Synth group: Gain, Cutoff, Resonance, Step
-    pGraphics->AttachControl(new IVKnobControl(synthRect.GetGridCell(0, 0, 1, 4).GetCentredInside(90), kParamGain, "Gain"), kNoTag, "Synth");
-    pGraphics->AttachControl(new IVKnobControl(synthRect.GetGridCell(0, 1, 1, 4).GetCentredInside(90), kParamCutoff, "Cutoff"), kNoTag, "Synth");
-    pGraphics->AttachControl(new IVKnobControl(synthRect.GetGridCell(0, 2, 1, 4).GetCentredInside(90), kParamResonance, "Res"), kNoTag, "Synth");
-    pGraphics->AttachControl(new IVKnobControl(synthRect.GetGridCell(0, 3, 1, 4).GetCentredInside(90), kParamFilterStep, "Step"), kNoTag, "Synth");
+    pGraphics->AttachControl(new IVKnobControl(synthRect.GetGridCell(0, 0, 1, 4).GetCentredInside(kKnobSize), kParamGain, "Gain"), kNoTag, "Synth");
+    pGraphics->AttachControl(new IVKnobControl(synthRect.GetGridCell(0, 1, 1, 4).GetCentredInside(kKnobSize), kParamCutoff, "Cutoff"), kNoTag, "Synth");
+    pGraphics->AttachControl(new IVKnobControl(synthRect.GetGridCell(0, 2, 1, 4).GetCentredInside(kKnobSize), kParamResonance, "Res"), kNoTag, "Synth");
+    pGraphics->AttachControl(new IVKnobControl(synthRect.GetGridCell(0, 3, 1, 4).GetCentredInside(kKnobSize), kParamFilterStep, "Step"), kNoTag, "Synth");
 
-    // ADSR group: Attack, Decay, Sustain, Release
-    pGraphics->AttachControl(new IVKnobControl(adsrRect.GetGridCell(0, 0, 1, 4).GetCentredInside(90), kParamAttack, "Attack"), kNoTag, "ADSR");
-    pGraphics->AttachControl(new IVKnobControl(adsrRect.GetGridCell(0, 1, 1, 4).GetCentredInside(90), kParamDecay, "Decay"), kNoTag, "ADSR");
-    pGraphics->AttachControl(new IVKnobControl(adsrRect.GetGridCell(0, 2, 1, 4).GetCentredInside(90), kParamSustain, "Sustain"), kNoTag, "ADSR");
-    pGraphics->AttachControl(new IVKnobControl(adsrRect.GetGridCell(0, 3, 1, 4).GetCentredInside(90), kParamRelease, "Release"), kNoTag, "ADSR");
+    pGraphics->AttachControl(new IVKnobControl(adsrRect.GetGridCell(0, 0, 1, 4).GetCentredInside(kKnobSize), kParamAttack, "Attack"), kNoTag, "ADSR");
+    pGraphics->AttachControl(new IVKnobControl(adsrRect.GetGridCell(0, 1, 1, 4).GetCentredInside(kKnobSize), kParamDecay, "Decay"), kNoTag, "ADSR");
+    pGraphics->AttachControl(new IVKnobControl(adsrRect.GetGridCell(0, 2, 1, 4).GetCentredInside(kKnobSize), kParamSustain, "Sustain"), kNoTag, "ADSR");
+    pGraphics->AttachControl(new IVKnobControl(adsrRect.GetGridCell(0, 3, 1, 4).GetCentredInside(kKnobSize), kParamRelease, "Release"), kNoTag, "ADSR");
 
-    // LoFi group: Character, Rate, Bits
-    pGraphics->AttachControl(new IVKnobControl(lofiRect.GetGridCell(0, 0, 1, 3).GetCentredInside(90), kParamLoFiCharacter, "Char"), kNoTag, "LoFi");
-    pGraphics->AttachControl(new IVKnobControl(lofiRect.GetGridCell(0, 1, 1, 3).GetCentredInside(90), kParamLoFiRate, "Rate"), kNoTag, "LoFi");
-    pGraphics->AttachControl(new IVKnobControl(lofiRect.GetGridCell(0, 2, 1, 3).GetCentredInside(90), kParamLoFiBits, "Bits"), kNoTag, "LoFi");
+    // Row 2: FiltEnv (5) + LoFi (3) = 8 knobs in an 8-column grid
+    const IRECT fenvRect = row2.SubRectHorizontal(8, 0).Union(row2.SubRectHorizontal(8, 4)).GetPadded(-kGap);
+    const IRECT lofiRect = row2.SubRectHorizontal(8, 5).Union(row2.SubRectHorizontal(8, 7)).GetPadded(-kGap);
 
-    // Group borders (attached after knobs so they auto-size around them)
-    // Padding: left, top, right, bottom. Extra top padding avoids group label
-    // overlapping with knob labels inside.
+    pGraphics->AttachControl(new IVKnobControl(fenvRect.GetGridCell(0, 0, 1, 5).GetCentredInside(kKnobSize), kParamFEnvAttack, "FAtk"), kNoTag, "FiltEnv");
+    pGraphics->AttachControl(new IVKnobControl(fenvRect.GetGridCell(0, 1, 1, 5).GetCentredInside(kKnobSize), kParamFEnvDecay, "FDec"), kNoTag, "FiltEnv");
+    pGraphics->AttachControl(new IVKnobControl(fenvRect.GetGridCell(0, 2, 1, 5).GetCentredInside(kKnobSize), kParamFEnvSustain, "FSus"), kNoTag, "FiltEnv");
+    pGraphics->AttachControl(new IVKnobControl(fenvRect.GetGridCell(0, 3, 1, 5).GetCentredInside(kKnobSize), kParamFEnvRelease, "FRel"), kNoTag, "FiltEnv");
+    pGraphics->AttachControl(new IVKnobControl(fenvRect.GetGridCell(0, 4, 1, 5).GetCentredInside(kKnobSize), kParamFEnvAmount, "FAmt"), kNoTag, "FiltEnv");
+
+    pGraphics->AttachControl(new IVKnobControl(lofiRect.GetGridCell(0, 0, 1, 3).GetCentredInside(kKnobSize), kParamLoFiCharacter, "Char"), kNoTag, "LoFi");
+    pGraphics->AttachControl(new IVKnobControl(lofiRect.GetGridCell(0, 1, 1, 3).GetCentredInside(kKnobSize), kParamLoFiRate, "Rate"), kNoTag, "LoFi");
+    pGraphics->AttachControl(new IVKnobControl(lofiRect.GetGridCell(0, 2, 1, 3).GetCentredInside(kKnobSize), kParamLoFiBits, "Bits"), kNoTag, "LoFi");
+
+    // Group borders
     pGraphics->AttachControl(new IVGroupControl("Synth", "Synth", 5.f, 20.f, 5.f, 5.f));
     pGraphics->AttachControl(new IVGroupControl("ADSR", "ADSR", 5.f, 20.f, 5.f, 5.f));
+    pGraphics->AttachControl(new IVGroupControl("Filter Env", "FiltEnv", 5.f, 20.f, 5.f, 5.f));
     pGraphics->AttachControl(new IVGroupControl("LoFi", "LoFi", 5.f, 20.f, 5.f, 5.f));
 
     // Reset button (positioned at top-right, bounds computed above).
