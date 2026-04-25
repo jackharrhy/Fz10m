@@ -304,6 +304,27 @@ public:
           static_cast<Fz10mVoice<T>&>(voice).mFilter.SetQ(value);
         });
         break;
+      case 7 /* kParamLoFiCharacter */:
+      {
+        const T amt = static_cast<T>(value / 100.0);
+        mSynth.ForEachVoice([amt](SynthVoice& voice) {
+          static_cast<Fz10mVoice<T>&>(voice).mLoFi.SetAmount(amt);
+        });
+        break;
+      }
+      case 8 /* kParamLoFiRate */:
+        mSynth.ForEachVoice([value](SynthVoice& voice) {
+          static_cast<Fz10mVoice<T>&>(voice).mLoFi.SetRateHz(value);
+        });
+        break;
+      case 9 /* kParamLoFiBits */:
+      {
+        const int bits = static_cast<int>(value);
+        mSynth.ForEachVoice([bits](SynthVoice& voice) {
+          static_cast<Fz10mVoice<T>&>(voice).mLoFi.SetBits(bits);
+        });
+        break;
+      }
       default:
         break;
     }
