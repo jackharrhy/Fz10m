@@ -1,79 +1,71 @@
 # Fz10m
 
-A simple audio effect VST3/AU/CLAP/AAX plugin built with [iPlug2](https://github.com/iPlug2/iPlug2).
+A drawable-wavetable lo-fi synth plugin inspired by the Casio FZ series, built with [iPlug2](https://github.com/iPlug2/iPlug2).
 
-## Cloning
+8-voice polyphony, per-voice lo-fi stage (sample-rate hold + bit-depth quantization), stepped filter coefficient updates, ADSR envelope, and a drawable 128-point wavetable. Builds as VST3/AU/CLAP on macOS and VST3/CLAP on Windows.
 
-```bash
-git clone --recurse-submodules https://github.com/<you>/Fz10m.git
-# or, if you already cloned without --recurse-submodules:
-git submodule update --init --recursive
-```
-
-After the submodule is populated, download the VST3 SDK (it's a separate set of Steinberg submodules fetched by a helper script):
+## Getting started
 
 ```bash
-cd iPlug2/Dependencies/IPlug
-./download-vst3-sdk.sh
+git clone --recurse-submodules https://github.com/jackharrhy/Fz10m.git
+cd Fz10m
+just setup
 ```
 
-For CLAP and WAM builds you'll also want `./download-clap-sdks.sh` and `./download-wam-sdk.sh` in the same directory.
+`just setup` initializes submodules, downloads the VST3 and CLAP SDKs, and fetches test tools.
 
 ## Building
 
-### macOS (Xcode)
-
-Open the workspace:
+Requires [just](https://github.com/casey/just) and Xcode (macOS).
 
 ```bash
-open Fz10m.xcworkspace
+just build              # macOS VST3 Debug (default)
+just build macOS-AU     # AU
+just build macOS-CLAP   # CLAP
+just app                # build and launch standalone app
 ```
 
-…or build from the command line. Available schemes: `macOS-APP`, `macOS-AU`, `macOS-VST3`, `macOS-CLAP`, `macOS-AAX`, `macOS-AUv3`.
+Or open the workspace directly:
 
 ```bash
-xcodebuild -workspace Fz10m.xcworkspace -scheme macOS-VST3 -configuration Debug build
+just open               # opens Fz10m.xcworkspace in Xcode
 ```
 
-Built plugins install automatically to the standard macOS plug-in folders:
+Built plugins install to standard macOS plug-in folders:
 
 - VST3 → `~/Library/Audio/Plug-Ins/VST3/Fz10m.vst3`
-- AU   → `~/Library/Audio/Plug-Ins/Components/Fz10m.component`
+- AU → `~/Library/Audio/Plug-Ins/Components/Fz10m.component`
 - CLAP → `~/Library/Audio/Plug-Ins/CLAP/Fz10m.clap`
-- APP  → `~/Applications/Fz10m.app`
-
-### iOS
-
-```bash
-xcodebuild -workspace Fz10m.xcworkspace -scheme "iOS-APP with AUv3" -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 16 Pro' build
-```
+- APP → `~/Applications/Fz10m.app`
 
 ### Windows
 
-Open `Fz10m.sln` in Visual Studio, or from the command line:
+Open `projects/Fz10m.sln` in Visual Studio:
 
 ```cmd
-msbuild Fz10m.sln /p:Configuration=Release /p:Platform=x64
+msbuild projects\Fz10m.sln /p:Configuration=Release /p:Platform=x64
 ```
 
-### CMake (Ninja / Xcode generator)
+## Releasing
 
 ```bash
-cmake --preset mac-ninja
-cmake --build --preset mac-ninja
+just release
 ```
+
+Prompts for major/minor/patch, shows changelog preview, then bumps version, tags, and pushes. CI builds and publishes a draft GitHub release.
 
 ## Project layout
 
 ```
 Fz10m/
 ├── Fz10m.cpp, Fz10m.h, config.h   Plugin sources and compile-time config
+├── Fz10m_DSP.h                     DSP: wavetable oscillator, lo-fi stage, voice, synth
 ├── projects/                       Xcode projects and Visual Studio solution
 ├── resources/                      Info.plist files, icons, fonts, storyboards
 ├── config/                         Per-platform xcconfig / props / mk files
 ├── scripts/                        Build-phase helpers (prepare_resources, installer, etc.)
-├── installer/                      Installer assets (.iss, license, readme RTF)
-├── manual/                         Source for the user manual
+├── installer/                      Installer assets (.iss, license, readme, changelog)
+├── docs/                           Design specs and implementation plans
 └── iPlug2/                         iPlug2 framework (git submodule)
 ```
 
