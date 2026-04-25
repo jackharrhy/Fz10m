@@ -361,6 +361,9 @@ public:
       mWavetable[i] = static_cast<T>(newValues01[i] * 2.0 - 1.0);
   }
 
+  /** Read-only access to the raw wavetable (-1..+1 range). */
+  const std::array<T, kWavetableSize>& GetWavetable() const { return mWavetable; }
+
 private:
   MidiSynth mSynth;
   std::array<T, kWavetableSize> mWavetable {};

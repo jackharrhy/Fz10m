@@ -49,6 +49,10 @@ class Fz10m final : public Plugin
 public:
   Fz10m(const InstanceInfo& info);
 
+  bool SerializeState(IByteChunk& chunk) const override;
+  int UnserializeState(const IByteChunk& chunk, int startPos) override;
+  void OnUIOpen() override;
+
 #if IPLUG_DSP
 public:
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;

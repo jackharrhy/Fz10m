@@ -112,6 +112,67 @@ Fz10m::Fz10m(const InstanceInfo& info)
 #endif
 }
 
+// State chunk format version. Bump this when the serialized layout changes.
+static constexpr int kStateVersion = 1;
+
+bool Fz10m::SerializeState(IByteChunk& chunk) const
+{
+  // Version header (always first).
+  chunk.Put(&kStateVersion);
+
+#if IPLUG_DSP
+  // Wavetable: 128 doubles in -1..+1 range.
+  const auto& wt = mDSP.GetWavetable();
+  for (int i = 0; i < kWavetableSize; ++i)
+    chunk.Put(&wt[i]);
+#endif
+
+  return SerializeParams(chunk);
+}
+
+int Fz10m::UnserializeState(const IByteChunk& chunk, int startPos)
+{
+  int version = 0;
+  startPos = chunk.Get(&version, startPos);
+
+  if (version == 1)
+  {
+#if IPLUG_DSP
+    // Read 128 doubles (-1..+1), convert to 0..1 floats for UpdateWavetable.
+    float vals01[kWavetableSize];
+    for (int i = 0; i < kWavetableSize; ++i)
+    {
+      double v;
+      startPos = chunk.Get(&v, startPos);
+      vals01[i] = static_cast<float>(v * 0.5 + 0.5);
+    }
+    mDSP.UpdateWavetable(vals01, kWavetableSize);
+#endif
+  }
+  // Unknown version: skip gracefully. Parameters will still load via
+  // UnserializeParams below, and wavetable stays at its current state.
+
+  return UnserializeParams(chunk, startPos);
+}
+
+void Fz10m::OnUIOpen()
+{
+#if IPLUG_DSP
+  // Push the current wavetable state to the UI multi-slider control.
+  if (GetUI())
+  {
+    auto* pWT = GetUI()->GetControlWithTag(kCtrlTagWavetable);
+    if (pWT)
+    {
+      const auto& wt = mDSP.GetWavetable();
+      for (int i = 0; i < kWavetableSize; ++i)
+        pWT->SetValue(wt[i] * 0.5 + 0.5, i);
+      pWT->SetDirty(false);
+    }
+  }
+#endif
+}
+
 #if IPLUG_DSP
 void Fz10m::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
