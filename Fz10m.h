@@ -39,12 +39,16 @@ enum EParams
   kParamFEnvRelease,
   kParamFEnvAmount,
   kParamWavePreset,
+  kParamWaveMode,
   kNumParams
 };
+
+constexpr int kNumHarmonics = 16;
 
 enum EControlTags
 {
   kCtrlTagWavetable = 0,
+  kCtrlTagHarmonics,
   kCtrlTagKeyboard,
   kNumCtrlTags
 };

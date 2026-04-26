@@ -41,6 +41,81 @@ static void GenerateWavePreset(int preset, float* vals)
   }
 }
 
+// Render a wavetable from harmonic amplitudes (0..1 slider values).
+// harmonics[k] is the amplitude of harmonic k+1 (fundamental is harmonics[0]).
+// Output is 0..1 UI slider values.
+static void RenderHarmonics(const float* harmonics, int nHarmonics, float* vals)
+{
+  constexpr int N = kWavetableSize;
+  double maxAbs = 0.0;
+  double raw[kWavetableSize];
+
+  for (int i = 0; i < N; ++i)
+  {
+    double v = 0.0;
+    const double phase = static_cast<double>(i) / N;
+    for (int k = 0; k < nHarmonics; ++k)
+      v += harmonics[k] * std::sin(2.0 * M_PI * (k + 1) * phase);
+    raw[i] = v;
+    if (std::fabs(v) > maxAbs) maxAbs = std::fabs(v);
+  }
+
+  // Normalize to -1..+1 then map to 0..1
+  const double scale = (maxAbs > 0.0001) ? (1.0 / maxAbs) : 1.0;
+  for (int i = 0; i < N; ++i)
+    vals[i] = static_cast<float>(raw[i] * scale * 0.5 + 0.5);
+}
+
+// Set harmonic slider values to match a preset waveform's harmonic series.
+static void GenerateHarmonicPreset(int preset, float* harmonics, int nHarmonics)
+{
+  for (int k = 0; k < nHarmonics; ++k)
+    harmonics[k] = 0.f;
+
+  switch (preset)
+  {
+    case kPresetSine:
+      harmonics[0] = 1.f;
+      break;
+    case kPresetTriangle:
+      for (int k = 0; k < nHarmonics; ++k)
+      {
+        const int n = k + 1; // harmonic number
+        if (n % 2 == 1)
+          harmonics[k] = 1.f / static_cast<float>(n * n);
+      }
+      break;
+    case kPresetSawtooth:
+      for (int k = 0; k < nHarmonics; ++k)
+        harmonics[k] = 1.f / static_cast<float>(k + 1);
+      break;
+    case kPresetSquare:
+      for (int k = 0; k < nHarmonics; ++k)
+      {
+        const int n = k + 1;
+        if (n % 2 == 1)
+          harmonics[k] = 1.f / static_cast<float>(n);
+      }
+      break;
+    case kPresetPulse:
+      for (int k = 0; k < nHarmonics; ++k)
+        harmonics[k] = 1.f / static_cast<float>(k + 1);
+      // Narrow pulse: all harmonics at equal-ish amplitude
+      break;
+    case kPresetDoubleSine:
+      harmonics[1] = 1.f; // 2nd harmonic only
+      break;
+    case kPresetSawPulse:
+      for (int k = 0; k < nHarmonics; ++k)
+        harmonics[k] = (k < nHarmonics / 2) ? 1.f / static_cast<float>(k + 1) : 0.f;
+      break;
+    case kPresetRandom:
+      for (int k = 0; k < nHarmonics; ++k)
+        harmonics[k] = static_cast<float>(std::rand()) / RAND_MAX;
+      break;
+  }
+}
+
 Fz10m::Fz10m(const InstanceInfo& info)
 : iplug::Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
@@ -88,6 +163,7 @@ Fz10m::Fz10m(const InstanceInfo& info)
                                         "", IParam::kFlagsNone, "",
                                         "Sine", "Triangle", "Sawtooth", "Square",
                                         "Pulse", "Dbl Sine", "Saw/Pulse", "Random");
+  GetParam(kParamWaveMode)->InitBool("Mode", false, "", IParam::kFlagsNone, "", "Draw", "Additive");
 
 #if IPLUG_EDITOR
   mMakeGraphicsFunc = [&]() {
@@ -177,10 +253,12 @@ Fz10m::Fz10m(const InstanceInfo& info)
         pDelegate->SendCurrentParamValuesFromDelegate();
       }, "Reset", DEFAULT_STYLE));
 
-    // Wavetable preset dropdown above the wavetable, top-left.
+    // Wavetable controls row: preset dropdown + mode toggle.
     const IRECT presetRow = b.ReduceFromTop(50.f);
     pGraphics->AttachControl(new IVMenuButtonControl(presetRow.GetFromLeft(120.f),
                                                       kParamWavePreset, "Wave", DEFAULT_STYLE));
+    pGraphics->AttachControl(new IVToggleControl(presetRow.GetFromLeft(280.f).GetFromRight(140.f).GetCentredInside(130.f, 40.f),
+                                                  kParamWaveMode, "Mode", DEFAULT_STYLE, "Draw", "Additive"));
 
     // Full-width wavetable drawing surface.
     const IRECT wtDrawBounds = b;
@@ -199,8 +277,30 @@ Fz10m::Fz10m(const InstanceInfo& info)
       for (int i = 0; i < kWavetableSize; ++i)
         vals[i] = static_cast<float>(pCaller->GetValue(i));
       pGraphics->GetDelegate()->SendArbitraryMsgFromUI(kMsgTagWavetableChanged,
-                                                      kCtrlTagWavetable,
-                                                      sizeof(vals), vals);
+                                                       kCtrlTagWavetable,
+                                                       sizeof(vals), vals);
+    });
+
+    // Harmonics multi-slider (same bounds as wavetable, hidden by default).
+    auto* pHarm = new IVMultiSliderControl<kNumHarmonics>(wtDrawBounds, "Harmonics",
+                                                           DEFAULT_STYLE);
+    pGraphics->AttachControl(pHarm, kCtrlTagHarmonics);
+    // Start with just the fundamental.
+    pHarm->SetValue(1.0, 0);
+    for (int i = 1; i < kNumHarmonics; ++i)
+      pHarm->SetValue(0.0, i);
+    pHarm->Hide(true);
+
+    pHarm->SetActionFunction([pGraphics](IControl* pCaller) {
+      float harmonics[kNumHarmonics];
+      for (int i = 0; i < kNumHarmonics; ++i)
+        harmonics[i] = static_cast<float>(pCaller->GetValue(i));
+      // Render wavetable from harmonics and push to DSP.
+      float vals[kWavetableSize];
+      RenderHarmonics(harmonics, kNumHarmonics, vals);
+      pGraphics->GetDelegate()->SendArbitraryMsgFromUI(kMsgTagWavetableChanged,
+                                                       kCtrlTagWavetable,
+                                                       sizeof(vals), vals);
     });
 
     // Bottom: on-screen keyboard for testing.
@@ -314,21 +414,77 @@ void Fz10m::OnReset()
 
 void Fz10m::OnParamChange(int paramIdx)
 {
-  if (paramIdx == kParamWavePreset)
-  {
-    // Generate the preset waveform and push to DSP + UI.
-    float vals[kWavetableSize];
-    GenerateWavePreset(static_cast<int>(GetParam(kParamWavePreset)->Value()), vals);
-    mDSP.UpdateWavetable(vals, kWavetableSize);
+  const bool isAdditive = GetParam(kParamWaveMode)->Value() > 0.5;
 
+  if (paramIdx == kParamWaveMode)
+  {
+    // Mode changed: show/hide the right control.
     if (GetUI())
     {
       auto* pWT = GetUI()->GetControlWithTag(kCtrlTagWavetable);
-      if (pWT)
+      auto* pHarm = GetUI()->GetControlWithTag(kCtrlTagHarmonics);
+      if (pWT) pWT->Hide(isAdditive);
+      if (pHarm) pHarm->Hide(!isAdditive);
+    }
+
+    if (isAdditive && GetUI())
+    {
+      // Render from current harmonic slider values.
+      auto* pHarm = GetUI()->GetControlWithTag(kCtrlTagHarmonics);
+      if (pHarm)
       {
-        for (int i = 0; i < kWavetableSize; ++i)
-          pWT->SetValue(vals[i], i);
-        pWT->SetDirty(false);
+        float harmonics[kNumHarmonics];
+        for (int i = 0; i < kNumHarmonics; ++i)
+          harmonics[i] = static_cast<float>(pHarm->GetValue(i));
+        float vals[kWavetableSize];
+        RenderHarmonics(harmonics, kNumHarmonics, vals);
+        mDSP.UpdateWavetable(vals, kWavetableSize);
+      }
+    }
+    return;
+  }
+
+  if (paramIdx == kParamWavePreset)
+  {
+    const int preset = static_cast<int>(GetParam(kParamWavePreset)->Value());
+
+    if (isAdditive)
+    {
+      // In additive mode: set harmonic sliders to the preset recipe, then render.
+      float harmonics[kNumHarmonics];
+      GenerateHarmonicPreset(preset, harmonics, kNumHarmonics);
+
+      if (GetUI())
+      {
+        auto* pHarm = GetUI()->GetControlWithTag(kCtrlTagHarmonics);
+        if (pHarm)
+        {
+          for (int i = 0; i < kNumHarmonics; ++i)
+            pHarm->SetValue(harmonics[i], i);
+          pHarm->SetDirty(false);
+        }
+      }
+
+      float vals[kWavetableSize];
+      RenderHarmonics(harmonics, kNumHarmonics, vals);
+      mDSP.UpdateWavetable(vals, kWavetableSize);
+    }
+    else
+    {
+      // In draw mode: fill wavetable with preset shape.
+      float vals[kWavetableSize];
+      GenerateWavePreset(preset, vals);
+      mDSP.UpdateWavetable(vals, kWavetableSize);
+
+      if (GetUI())
+      {
+        auto* pWT = GetUI()->GetControlWithTag(kCtrlTagWavetable);
+        if (pWT)
+        {
+          for (int i = 0; i < kWavetableSize; ++i)
+            pWT->SetValue(vals[i], i);
+          pWT->SetDirty(false);
+        }
       }
     }
     return;
