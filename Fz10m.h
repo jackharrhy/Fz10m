@@ -30,6 +30,7 @@ enum EParams
   kParamLoFiCharacter,
   kParamLoFiRate,
   kParamLoFiBits,
+  kParamLoFiPost,
   kParamFilterStep,
   kParamFEnvAttack,
   kParamFEnvDecay,

@@ -188,14 +188,15 @@ public:
     {
       T s = mOsc.Process(freqHz);
 
-      s = mLoFi.Process(s);
+      // Lo-fi pre-filter (default).
+      if (!mLoFiPost)
+        s = mLoFi.Process(s);
 
       // Advance filter envelope every sample for accurate timing.
       mFilterEnvVal = mFilterEnv.Process(mFilterEnvSustain);
 
       if (--mFilterStepCounter <= 0)
       {
-        // Apply filter envelope modulation to cutoff.
         T effectiveCutoff = mTargetCutoff + mFilterEnvVal * mFilterEnvAmount * T(20000);
         effectiveCutoff = std::max(T(20), std::min(T(20000), effectiveCutoff));
         mFilter.SetFreqCPS(effectiveCutoff);
@@ -206,6 +207,10 @@ public:
       T* inPtr[1] = { &s };
       T* outPtr[1] = { &s };
       mFilter.ProcessBlock(inPtr, outPtr, 1, 1);
+
+      // Lo-fi post-filter.
+      if (mLoFiPost)
+        s = mLoFi.Process(s);
 
       const T envVal = mAmpEnv.Process(mSustainLevel);
       s *= envVal;
@@ -243,6 +248,7 @@ public:
   T mFilterEnvAmount = T(0);
   T mFilterEnvSustain = T(0);
   T mFilterEnvVal = T(0);
+  bool mLoFiPost = false;
 };
 
 /** Top-level DSP wrapper owned by the plugin. Holds the shared wavetable,
@@ -387,6 +393,14 @@ public:
         const T amt = static_cast<T>(value / 100.0);
         mSynth.ForEachVoice([amt](SynthVoice& voice) {
           static_cast<Fz10mVoice<T>&>(voice).mFilterEnvAmount = amt;
+        });
+        break;
+      }
+      case kParamLoFiPost:
+      {
+        const bool post = value > 0.5;
+        mSynth.ForEachVoice([post](SynthVoice& voice) {
+          static_cast<Fz10mVoice<T>&>(voice).mLoFiPost = post;
         });
         break;
       }

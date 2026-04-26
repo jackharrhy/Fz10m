@@ -65,6 +65,7 @@ Fz10m::Fz10m(const InstanceInfo& info)
                                        IParam::ShapePowCurve(2.));
   GetParam(kParamLoFiBits)->InitDouble("Bits", 8., 4., 16., 1., "bits",
                                        IParam::kFlagsNone, "LoFi");
+  GetParam(kParamLoFiPost)->InitBool("Post", false, "", IParam::kFlagsNone, "LoFi");
   GetParam(kParamFilterStep)->InitDouble("Step", 1., 1., 512., 1., "smp",
                                            IParam::kFlagsNone, "Synth");
   GetParam(kParamFEnvAttack)->InitDouble("FAtk", 10., 5., 1000., 0.1, "ms",
@@ -137,9 +138,10 @@ Fz10m::Fz10m(const InstanceInfo& info)
     pGraphics->AttachControl(new IVKnobControl(fenvRect.GetGridCell(0, 3, 1, 5).GetCentredInside(kKnobSize), kParamFEnvRelease, "FRel"), kNoTag, "FiltEnv");
     pGraphics->AttachControl(new IVKnobControl(fenvRect.GetGridCell(0, 4, 1, 5).GetCentredInside(kKnobSize), kParamFEnvAmount, "FAmt"), kNoTag, "FiltEnv");
 
-    pGraphics->AttachControl(new IVKnobControl(lofiRect.GetGridCell(0, 0, 1, 3).GetCentredInside(kKnobSize), kParamLoFiCharacter, "Char"), kNoTag, "LoFi");
-    pGraphics->AttachControl(new IVKnobControl(lofiRect.GetGridCell(0, 1, 1, 3).GetCentredInside(kKnobSize), kParamLoFiRate, "Rate"), kNoTag, "LoFi");
-    pGraphics->AttachControl(new IVKnobControl(lofiRect.GetGridCell(0, 2, 1, 3).GetCentredInside(kKnobSize), kParamLoFiBits, "Bits"), kNoTag, "LoFi");
+    pGraphics->AttachControl(new IVKnobControl(lofiRect.GetGridCell(0, 0, 1, 4).GetCentredInside(kKnobSize), kParamLoFiCharacter, "Char"), kNoTag, "LoFi");
+    pGraphics->AttachControl(new IVKnobControl(lofiRect.GetGridCell(0, 1, 1, 4).GetCentredInside(kKnobSize), kParamLoFiRate, "Rate"), kNoTag, "LoFi");
+    pGraphics->AttachControl(new IVKnobControl(lofiRect.GetGridCell(0, 2, 1, 4).GetCentredInside(kKnobSize), kParamLoFiBits, "Bits"), kNoTag, "LoFi");
+    pGraphics->AttachControl(new IVToggleControl(lofiRect.GetGridCell(0, 3, 1, 4).GetCentredInside(kKnobSize, 40.f), kParamLoFiPost, "Position", DEFAULT_STYLE, "Pre", "Post"), kNoTag, "LoFi");
 
     // Group borders
     pGraphics->AttachControl(new IVGroupControl("Synth", "Synth", 5.f, 20.f, 5.f, 5.f));
