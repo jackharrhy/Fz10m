@@ -1,7 +1,7 @@
 #define PLUG_NAME "Fz10m"
 #define PLUG_MFR "Grovepark"
-#define PLUG_VERSION_HEX 0x00000500
-#define PLUG_VERSION_STR "0.5.0"
+#define PLUG_VERSION_HEX 0x00000600
+#define PLUG_VERSION_STR "0.6.0"
 #define PLUG_UNIQUE_ID 'Fz10'
 #define PLUG_MFR_ID 'Grpk'
 #define PLUG_URL_STR "https://github.com/jackharrhy/Fz10m"
