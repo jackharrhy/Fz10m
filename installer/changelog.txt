@@ -1,6 +1,11 @@
 Fz10m changelog
 https://github.com/jackharrhy/Fz10m
 
+2026-04-25 - v0.6.0
+  - Additive harmonic mode: 16 harmonic sliders with Draw/Additive toggle
+  - Harmonic presets: selecting a waveform preset in additive mode sets the harmonic recipe
+  - Mode selector for wavetable area (Draw for waveform drawing, Additive for harmonics)
+
 2026-04-25 - v0.5.0
   - Filter mode selector: LowPass, HighPass, BandPass, Notch, Peak
   - Lo-fi pre/post filter toggle
