@@ -367,6 +367,15 @@ public:
         });
         break;
       }
+      case kParamFilterMode:
+      {
+        const int mode = static_cast<int>(value);
+        mSynth.ForEachVoice([mode](SynthVoice& voice) {
+          static_cast<Fz10mVoice<T>&>(voice).mFilter.SetMode(
+            static_cast<typename SVF<T>::EMode>(mode));
+        });
+        break;
+      }
       case kParamFEnvAttack:
       case kParamFEnvDecay:
       case kParamFEnvRelease:

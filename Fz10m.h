@@ -32,6 +32,7 @@ enum EParams
   kParamLoFiBits,
   kParamLoFiPost,
   kParamFilterStep,
+  kParamFilterMode,
   kParamFEnvAttack,
   kParamFEnvDecay,
   kParamFEnvSustain,

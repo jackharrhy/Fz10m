@@ -67,7 +67,10 @@ Fz10m::Fz10m(const InstanceInfo& info)
                                        IParam::kFlagsNone, "LoFi");
   GetParam(kParamLoFiPost)->InitBool("Post", false, "", IParam::kFlagsNone, "LoFi");
   GetParam(kParamFilterStep)->InitDouble("Step", 1., 1., 512., 1., "smp",
-                                           IParam::kFlagsNone, "Synth");
+                                            IParam::kFlagsNone, "Synth");
+  GetParam(kParamFilterMode)->InitEnum("Filter", 0, 5,
+                                        "", IParam::kFlagsNone, "Synth",
+                                        "LowPass", "HighPass", "BandPass", "Notch", "Peak");
   GetParam(kParamFEnvAttack)->InitDouble("FAtk", 10., 5., 1000., 0.1, "ms",
                                           IParam::kFlagsNone, "FiltEnv",
                                           IParam::ShapePowCurve(3.));
@@ -114,14 +117,15 @@ Fz10m::Fz10m(const InstanceInfo& info)
     const IRECT kbBounds = b.ReduceFromBottom(180.f);
     const IRECT wtBounds = b; // whatever's left in between
 
-    // Row 1: Synth (4) + ADSR (4) = 8 knobs in an 8-column grid
-    const IRECT synthRect = row1.SubRectHorizontal(8, 0).Union(row1.SubRectHorizontal(8, 3)).GetPadded(-kGap);
-    const IRECT adsrRect  = row1.SubRectHorizontal(8, 4).Union(row1.SubRectHorizontal(8, 7)).GetPadded(-kGap);
+    // Row 1: Synth (5) + ADSR (4) = 9 columns
+    const IRECT synthRect = row1.SubRectHorizontal(9, 0).Union(row1.SubRectHorizontal(9, 4)).GetPadded(-kGap);
+    const IRECT adsrRect  = row1.SubRectHorizontal(9, 5).Union(row1.SubRectHorizontal(9, 8)).GetPadded(-kGap);
 
-    pGraphics->AttachControl(new IVKnobControl(synthRect.GetGridCell(0, 0, 1, 4).GetCentredInside(kKnobSize), kParamGain, "Gain"), kNoTag, "Synth");
-    pGraphics->AttachControl(new IVKnobControl(synthRect.GetGridCell(0, 1, 1, 4).GetCentredInside(kKnobSize), kParamCutoff, "Cutoff"), kNoTag, "Synth");
-    pGraphics->AttachControl(new IVKnobControl(synthRect.GetGridCell(0, 2, 1, 4).GetCentredInside(kKnobSize), kParamResonance, "Res"), kNoTag, "Synth");
-    pGraphics->AttachControl(new IVKnobControl(synthRect.GetGridCell(0, 3, 1, 4).GetCentredInside(kKnobSize), kParamFilterStep, "Step"), kNoTag, "Synth");
+    pGraphics->AttachControl(new IVKnobControl(synthRect.GetGridCell(0, 0, 1, 5).GetCentredInside(kKnobSize), kParamGain, "Gain"), kNoTag, "Synth");
+    pGraphics->AttachControl(new IVKnobControl(synthRect.GetGridCell(0, 1, 1, 5).GetCentredInside(kKnobSize), kParamCutoff, "Cutoff"), kNoTag, "Synth");
+    pGraphics->AttachControl(new IVKnobControl(synthRect.GetGridCell(0, 2, 1, 5).GetCentredInside(kKnobSize), kParamResonance, "Res"), kNoTag, "Synth");
+    pGraphics->AttachControl(new IVKnobControl(synthRect.GetGridCell(0, 3, 1, 5).GetCentredInside(kKnobSize), kParamFilterStep, "Step"), kNoTag, "Synth");
+    pGraphics->AttachControl(new IVMenuButtonControl(synthRect.GetGridCell(0, 4, 1, 5).GetCentredInside(kKnobSize, 40.f), kParamFilterMode, "Mode", DEFAULT_STYLE), kNoTag, "Synth");
 
     pGraphics->AttachControl(new IVKnobControl(adsrRect.GetGridCell(0, 0, 1, 4).GetCentredInside(kKnobSize), kParamAttack, "Attack"), kNoTag, "ADSR");
     pGraphics->AttachControl(new IVKnobControl(adsrRect.GetGridCell(0, 1, 1, 4).GetCentredInside(kKnobSize), kParamDecay, "Decay"), kNoTag, "ADSR");
