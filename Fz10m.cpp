@@ -412,9 +412,10 @@ void Fz10m::OnReset()
   mDSP.Reset(GetSampleRate(), GetBlockSize());
 }
 
-void Fz10m::OnParamChange(int paramIdx)
+void Fz10m::OnParamChange(int paramIdx, EParamSource source, int)
 {
   const bool isAdditive = GetParam(kParamWaveMode)->Value() > 0.5;
+  const bool isPresetRecall = source == kPresetRecall;
 
   if (paramIdx == kParamWaveMode)
   {
@@ -427,7 +428,7 @@ void Fz10m::OnParamChange(int paramIdx)
       if (pHarm) pHarm->Hide(!isAdditive);
     }
 
-    if (isAdditive && GetUI())
+    if (!isPresetRecall && isAdditive && GetUI())
     {
       // Render from current harmonic slider values.
       auto* pHarm = GetUI()->GetControlWithTag(kCtrlTagHarmonics);
@@ -446,6 +447,11 @@ void Fz10m::OnParamChange(int paramIdx)
 
   if (paramIdx == kParamWavePreset)
   {
+    // The serialized wavetable is authoritative during recall. Regenerating the
+    // selected preset here would overwrite a custom drawing with that preset.
+    if (isPresetRecall)
+      return;
+
     const int preset = static_cast<int>(GetParam(kParamWavePreset)->Value());
 
     if (isAdditive)
