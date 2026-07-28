@@ -19,11 +19,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, windows-latest]
+        os: [macos-latest, windows-2022]
         include:
           - os: macos-latest
             build_dir: build-mac
-          - os: windows-latest
+          - os: windows-2022
             build_dir: build-win
 
     steps:
@@ -74,19 +74,19 @@ jobs:
 
     # ---------- Windows ----------
     - name: Setup Python (Windows)
-      if: matrix.os == 'windows-latest'
+      if: matrix.os == 'windows-2022'
       uses: actions/setup-python@v5
       with:
         python-version: '3.x'
         architecture: 'x64'
 
     - name: Add MSBuild to PATH (Windows)
-      if: matrix.os == 'windows-latest'
-      uses: microsoft/setup-msbuild@v2
+      if: matrix.os == 'windows-2022'
+      uses: microsoft/setup-msbuild@v3
 
     - name: Get archive name (Windows)
       id: win_archivename
-      if: matrix.os == 'windows-latest'
+      if: matrix.os == 'windows-2022'
       shell: bash
       run: |
         # See note above in mac step — projectpath is "." for flat layout.
@@ -94,14 +94,14 @@ jobs:
         echo "name=${name}" >> "$GITHUB_OUTPUT"
 
     - name: Build Windows
-      if: matrix.os == 'windows-latest'
+      if: matrix.os == 'windows-2022'
       shell: pwsh
       run: |
         cd scripts
         .\makedist-win.bat full installer
 
     - name: Stage Windows artefacts
-      if: matrix.os == 'windows-latest'
+      if: matrix.os == 'windows-2022'
       shell: bash
       run: |
         mkdir -p artefacts

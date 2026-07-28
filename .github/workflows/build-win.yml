@@ -18,7 +18,7 @@ env:
 jobs:
   build-win:
     name: Build Windows
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     steps:
     - name: Check out repository
@@ -64,7 +64,7 @@ jobs:
         ./download-clap-sdks.sh ${{env.CLAP_VER}}
 
     - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v2
+      uses: microsoft/setup-msbuild@v3
 
     - name: Build
       shell: pwsh
@@ -81,7 +81,7 @@ jobs:
 
   test-win:
     name: Test Windows
-    runs-on: windows-latest
+    runs-on: windows-2022
     needs: build-win
 
     steps:
