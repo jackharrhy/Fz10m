@@ -49,6 +49,7 @@
 		4FC6984C293BA6010076EC33 /* IGraphicsCoreText.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D6A2267CDBE0007B686 /* IGraphicsCoreText.mm */; };
 		4FC6984D293BA6140076EC33 /* IGraphicsNanoVG_src.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D7DCB224AE821002A1A2A /* IGraphicsNanoVG_src.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4FC6984E293BA61D0076EC33 /* Fz10m.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF108720A1036200D3092F /* Fz10m.cpp */; };
+		FA20D0010000000000000000 /* Fz10m_State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA20D0000000000000000000 /* Fz10m_State.cpp */; };
 		4FC6984F293BA6420076EC33 /* IControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F6369E520A466320022C370 /* IControl.cpp */; };
 		4FC69851293BA8770076EC33 /* IGraphicsIOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F63698E20A463AF0022C370 /* IGraphicsIOS.mm */; };
 		4FDF6D772267CE540007B686 /* AppViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D732267CE540007B686 /* AppViewController.mm */; };
@@ -281,6 +282,7 @@
 		4FFF108420A1036200D3092F /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../config.h; sourceTree = "<group>"; };
 		4FFF108720A1036200D3092F /* Fz10m.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Fz10m.cpp; path = ../Fz10m.cpp; sourceTree = "<group>"; };
 		4FFF108820A1036200D3092F /* Fz10m.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Fz10m.h; path = ../Fz10m.h; sourceTree = "<group>"; };
+		FA20D0000000000000000000 /* Fz10m_State.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Fz10m_State.cpp; path = ../Fz10m_State.cpp; sourceTree = "<group>"; };
 		91236D0D1B08F42B00734C5E /* Fz10m.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Fz10m.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		91236D771B08F59300734C5E /* Fz10mAppExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Fz10mAppExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -644,6 +646,7 @@
 				4FFF108420A1036200D3092F /* config.h */,
 				4FFF108820A1036200D3092F /* Fz10m.h */,
 				4FFF108720A1036200D3092F /* Fz10m.cpp */,
+				FA20D0000000000000000000 /* Fz10m_State.cpp */,
 				4F8D8BD82316701900EFA1FB /* README.md */,
 				4F8BF48D20A12D2E0081DF0A /* Resources */,
 				4F67D51620A121F60061FB8E /* Other Sources */,
@@ -888,6 +891,7 @@
 				4FC69845293BA5C50076EC33 /* IPlugPaths.mm in Sources */,
 				4FC69847293BA5F90076EC33 /* IPopupMenuControl.cpp in Sources */,
 				4FC6984E293BA61D0076EC33 /* Fz10m.cpp in Sources */,
+				FA20D0010000000000000000 /* Fz10m_State.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <algorithm>
+#include <array>
+
 #include "IPlug_include_in_plug_hdr.h"
 #include "IControls.h"
 
@@ -20,6 +23,8 @@ enum EWavePreset
 
 enum EParams
 {
+  // Parameter IDs are persisted and exposed to hosts. Append new parameters;
+  // never insert or reorder them.
   kParamGain = 0,
   kParamAttack,
   kParamDecay,
@@ -56,6 +61,7 @@ enum EControlTags
 enum EMessageTags
 {
   kMsgTagWavetableChanged = 0,
+  kMsgTagHarmonicsChanged,
 };
 
 // Shared between UI (IVMultiSliderControl template arg) and DSP (wavetable buffer).
@@ -77,6 +83,7 @@ public:
   bool SerializeState(IByteChunk& chunk) const override;
   int UnserializeState(const IByteChunk& chunk, int startPos) override;
   void OnUIOpen() override;
+  void OnParamChangeUI(int paramIdx, EParamSource source) override;
 
 #if IPLUG_DSP
 public:
@@ -89,4 +96,9 @@ public:
 private:
   Fz10mDSP<sample> mDSP;
 #endif
+
+private:
+  void _syncWaveEditorUI();
+
+  std::array<float, kNumHarmonics> mHarmonics {1.f};
 };

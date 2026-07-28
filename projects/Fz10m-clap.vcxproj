@@ -334,6 +334,7 @@
     <ClCompile Include="..\iPlug2\IPlug\Extras\Synth\VoiceAllocator.cpp" />
     <ClCompile Include="..\iPlug2\IPlug\Extras\Synth\MidiSynth.cpp" />
     <ClCompile Include="..\Fz10m.cpp" />
+    <ClCompile Include="..\Fz10m_State.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resources\main.rc" />

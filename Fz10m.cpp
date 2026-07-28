@@ -141,11 +141,19 @@ Fz10m::Fz10m(const InstanceInfo& info)
   GetParam(kParamLoFiBits)->InitDouble("Bits", 8., 4., 16., 1., "bits",
                                        IParam::kFlagsNone, "LoFi");
   GetParam(kParamLoFiPost)->InitBool("Post", false, "", IParam::kFlagsNone, "LoFi");
+  GetParam(kParamLoFiPost)->SetDisplayFunc([](double value, WDL_String& str) {
+    str.Set(value < 0.5 ? "off" : "on");
+  });
   GetParam(kParamFilterStep)->InitDouble("Step", 1., 1., 512., 1., "smp",
                                             IParam::kFlagsNone, "Synth");
   GetParam(kParamFilterMode)->InitEnum("Filter", 0, 5,
                                         "", IParam::kFlagsNone, "Synth",
                                         "LowPass", "HighPass", "BandPass", "Notch", "Peak");
+  GetParam(kParamFilterMode)->SetDisplayFunc([](double value, WDL_String& str) {
+    static constexpr const char* labels[] = {"LowPass", "HighPass", "BandPass", "Notch", "Peak"};
+    const int idx = std::clamp(static_cast<int>(std::round(value)), 0, 4);
+    str.Set(labels[idx]);
+  });
   GetParam(kParamFEnvAttack)->InitDouble("FAtk", 10., 5., 1000., 0.1, "ms",
                                           IParam::kFlagsNone, "FiltEnv",
                                           IParam::ShapePowCurve(3.));
@@ -163,7 +171,17 @@ Fz10m::Fz10m(const InstanceInfo& info)
                                         "", IParam::kFlagsNone, "",
                                         "Sine", "Triangle", "Sawtooth", "Square",
                                         "Pulse", "Dbl Sine", "Saw/Pulse", "Random");
+  GetParam(kParamWavePreset)->SetDisplayFunc([](double value, WDL_String& str) {
+    static constexpr const char* labels[] = {
+      "Sine", "Triangle", "Sawtooth", "Square", "Pulse", "Dbl Sine", "Saw/Pulse", "Random"
+    };
+    const int idx = std::clamp(static_cast<int>(std::round(value)), 0, kNumWavePresets - 1);
+    str.Set(labels[idx]);
+  });
   GetParam(kParamWaveMode)->InitBool("Mode", false, "", IParam::kFlagsNone, "", "Draw", "Additive");
+  GetParam(kParamWaveMode)->SetDisplayFunc([](double value, WDL_String& str) {
+    str.Set(value < 0.5 ? "Draw" : "Additive");
+  });
 
 #if IPLUG_EDITOR
   mMakeGraphicsFunc = [&]() {
@@ -191,8 +209,6 @@ Fz10m::Fz10m(const InstanceInfo& info)
     const IRECT row2 = b.ReduceFromTop(150.f);
 
     const IRECT kbBounds = b.ReduceFromBottom(180.f);
-    const IRECT wtBounds = b; // whatever's left in between
-
     // Row 1: Synth (5) + ADSR (4) = 9 columns
     const IRECT synthRect = row1.SubRectHorizontal(9, 0).Union(row1.SubRectHorizontal(9, 4)).GetPadded(-kGap);
     const IRECT adsrRect  = row1.SubRectHorizontal(9, 5).Union(row1.SubRectHorizontal(9, 8)).GetPadded(-kGap);
@@ -240,7 +256,7 @@ Fz10m::Fz10m(const InstanceInfo& info)
           pDelegate->SendParameterValueFromUI(i, pDelegate->GetParam(i)->GetDefault(true));
           pDelegate->EndInformHostOfParamChangeFromUI(i);
         }
-        // Reset wavetable to sine (matching default kParamWavePreset).
+        // Reset wavetable and additive state to a sine.
         auto* pWT = pGraphics->GetControlWithTag(kCtrlTagWavetable);
         float vals[kWavetableSize];
         GenerateWavePreset(kPresetSine, vals);
@@ -249,6 +265,15 @@ Fz10m::Fz10m(const InstanceInfo& info)
         pDelegate->SendArbitraryMsgFromUI(kMsgTagWavetableChanged,
                                           kCtrlTagWavetable,
                                           sizeof(vals), vals);
+        auto* pHarm = pGraphics->GetControlWithTag(kCtrlTagHarmonics);
+        float harmonics[kNumHarmonics] = {1.f};
+        for (int i = 0; i < kNumHarmonics; ++i)
+        {
+          if (pHarm) pHarm->SetValue(harmonics[i], i);
+        }
+        pDelegate->SendArbitraryMsgFromUI(kMsgTagHarmonicsChanged,
+                                          kCtrlTagHarmonics,
+                                          sizeof(harmonics), harmonics);
         // Push updated param values back to knob controls.
         pDelegate->SendCurrentParamValuesFromDelegate();
       }, "Reset", DEFAULT_STYLE));
@@ -285,22 +310,17 @@ Fz10m::Fz10m(const InstanceInfo& info)
     auto* pHarm = new IVMultiSliderControl<kNumHarmonics>(wtDrawBounds, "Harmonics",
                                                            DEFAULT_STYLE);
     pGraphics->AttachControl(pHarm, kCtrlTagHarmonics);
-    // Start with just the fundamental.
-    pHarm->SetValue(1.0, 0);
-    for (int i = 1; i < kNumHarmonics; ++i)
-      pHarm->SetValue(0.0, i);
+    for (int i = 0; i < kNumHarmonics; ++i)
+      pHarm->SetValue(mHarmonics[i], i);
     pHarm->Hide(true);
 
     pHarm->SetActionFunction([pGraphics](IControl* pCaller) {
       float harmonics[kNumHarmonics];
       for (int i = 0; i < kNumHarmonics; ++i)
         harmonics[i] = static_cast<float>(pCaller->GetValue(i));
-      // Render wavetable from harmonics and push to DSP.
-      float vals[kWavetableSize];
-      RenderHarmonics(harmonics, kNumHarmonics, vals);
-      pGraphics->GetDelegate()->SendArbitraryMsgFromUI(kMsgTagWavetableChanged,
-                                                       kCtrlTagWavetable,
-                                                       sizeof(vals), vals);
+      pGraphics->GetDelegate()->SendArbitraryMsgFromUI(kMsgTagHarmonicsChanged,
+                                                       kCtrlTagHarmonics,
+                                                       sizeof(harmonics), harmonics);
     });
 
     // Bottom: on-screen keyboard for testing.
@@ -315,70 +335,46 @@ Fz10m::Fz10m(const InstanceInfo& info)
 #endif
 }
 
-// State chunk format version. Bump this when the serialized layout changes.
-static constexpr int kStateVersion = 1;
-
-bool Fz10m::SerializeState(IByteChunk& chunk) const
-{
-  // Version header (always first).
-  chunk.Put(&kStateVersion);
-
-#if IPLUG_DSP
-  // Wavetable: 128 doubles in -1..+1 range.
-  const auto& wt = mDSP.GetWavetable();
-  for (int i = 0; i < kWavetableSize; ++i)
-    chunk.Put(&wt[i]);
-#endif
-
-  return SerializeParams(chunk);
-}
-
-int Fz10m::UnserializeState(const IByteChunk& chunk, int startPos)
-{
-  int version = 0;
-  startPos = chunk.Get(&version, startPos);
-
-  if (version == 1)
-  {
-#if IPLUG_DSP
-    // Read 128 doubles (-1..+1), convert to 0..1 floats for UpdateWavetable.
-    float vals01[kWavetableSize];
-    for (int i = 0; i < kWavetableSize; ++i)
-    {
-      double v;
-      startPos = chunk.Get(&v, startPos);
-      vals01[i] = static_cast<float>(v * 0.5 + 0.5);
-    }
-    mDSP.UpdateWavetable(vals01, kWavetableSize);
-#endif
-  }
-  // Unknown version: skip gracefully. Parameters will still load via
-  // UnserializeParams below, and wavetable stays at its current state.
-
-  return UnserializeParams(chunk, startPos);
-}
-
 void Fz10m::OnUIOpen()
 {
-  // Base class pushes all parameter values to knob controls.
-  // Fully qualified to avoid ambiguity with CLAP helpers' Plugin class.
   iplug::Plugin::OnUIOpen();
+  _syncWaveEditorUI();
+}
+
+void Fz10m::OnParamChangeUI(int paramIdx, EParamSource source)
+{
+  if (paramIdx == kParamWavePreset || paramIdx == kParamWaveMode)
+    _syncWaveEditorUI();
+}
+
+void Fz10m::_syncWaveEditorUI()
+{
+  if (!GetUI())
+    return;
+
+  auto* pWT = GetUI()->GetControlWithTag(kCtrlTagWavetable);
+  auto* pHarm = GetUI()->GetControlWithTag(kCtrlTagHarmonics);
 
 #if IPLUG_DSP
-  // Push the current wavetable state to the UI multi-slider control.
-  // (Wavetable is custom state, not a parameter, so the base class doesn't handle it.)
-  if (GetUI())
+  if (pWT)
   {
-    auto* pWT = GetUI()->GetControlWithTag(kCtrlTagWavetable);
-    if (pWT)
-    {
-      const auto& wt = mDSP.GetWavetable();
-      for (int i = 0; i < kWavetableSize; ++i)
-        pWT->SetValue(wt[i] * 0.5 + 0.5, i);
-      pWT->SetDirty(false);
-    }
+    const auto& wt = mDSP.GetWavetable();
+    for (int i = 0; i < kWavetableSize; ++i)
+      pWT->SetValue(wt[i] * 0.5 + 0.5, i);
+    pWT->SetDirty(false);
   }
 #endif
+
+  if (pHarm)
+  {
+    for (int i = 0; i < kNumHarmonics; ++i)
+      pHarm->SetValue(mHarmonics[i], i);
+    pHarm->SetDirty(false);
+  }
+
+  const bool isAdditive = GetParam(kParamWaveMode)->Bool();
+  if (pWT) pWT->Hide(isAdditive);
+  if (pHarm) pHarm->Hide(!isAdditive);
 }
 
 #if IPLUG_DSP
@@ -419,28 +415,11 @@ void Fz10m::OnParamChange(int paramIdx, EParamSource source, int)
 
   if (paramIdx == kParamWaveMode)
   {
-    // Mode changed: show/hide the right control.
-    if (GetUI())
+    if (!isPresetRecall && isAdditive)
     {
-      auto* pWT = GetUI()->GetControlWithTag(kCtrlTagWavetable);
-      auto* pHarm = GetUI()->GetControlWithTag(kCtrlTagHarmonics);
-      if (pWT) pWT->Hide(isAdditive);
-      if (pHarm) pHarm->Hide(!isAdditive);
-    }
-
-    if (!isPresetRecall && isAdditive && GetUI())
-    {
-      // Render from current harmonic slider values.
-      auto* pHarm = GetUI()->GetControlWithTag(kCtrlTagHarmonics);
-      if (pHarm)
-      {
-        float harmonics[kNumHarmonics];
-        for (int i = 0; i < kNumHarmonics; ++i)
-          harmonics[i] = static_cast<float>(pHarm->GetValue(i));
-        float vals[kWavetableSize];
-        RenderHarmonics(harmonics, kNumHarmonics, vals);
-        mDSP.UpdateWavetable(vals, kWavetableSize);
-      }
+      float vals[kWavetableSize];
+      RenderHarmonics(mHarmonics.data(), kNumHarmonics, vals);
+      mDSP.UpdateWavetable(vals, kWavetableSize);
     }
     return;
   }
@@ -459,17 +438,7 @@ void Fz10m::OnParamChange(int paramIdx, EParamSource source, int)
       // In additive mode: set harmonic sliders to the preset recipe, then render.
       float harmonics[kNumHarmonics];
       GenerateHarmonicPreset(preset, harmonics, kNumHarmonics);
-
-      if (GetUI())
-      {
-        auto* pHarm = GetUI()->GetControlWithTag(kCtrlTagHarmonics);
-        if (pHarm)
-        {
-          for (int i = 0; i < kNumHarmonics; ++i)
-            pHarm->SetValue(harmonics[i], i);
-          pHarm->SetDirty(false);
-        }
-      }
+      std::copy_n(harmonics, kNumHarmonics, mHarmonics.begin());
 
       float vals[kWavetableSize];
       RenderHarmonics(harmonics, kNumHarmonics, vals);
@@ -481,17 +450,6 @@ void Fz10m::OnParamChange(int paramIdx, EParamSource source, int)
       float vals[kWavetableSize];
       GenerateWavePreset(preset, vals);
       mDSP.UpdateWavetable(vals, kWavetableSize);
-
-      if (GetUI())
-      {
-        auto* pWT = GetUI()->GetControlWithTag(kCtrlTagWavetable);
-        if (pWT)
-        {
-          for (int i = 0; i < kWavetableSize; ++i)
-            pWT->SetValue(vals[i], i);
-          pWT->SetDirty(false);
-        }
-      }
     }
     return;
   }
@@ -505,6 +463,16 @@ bool Fz10m::OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData)
   {
     const int count = dataSize / static_cast<int>(sizeof(float));
     mDSP.UpdateWavetable(static_cast<const float*>(pData), count);
+    return true;
+  }
+  if (msgTag == kMsgTagHarmonicsChanged && ctrlTag == kCtrlTagHarmonics)
+  {
+    const int count = std::min(dataSize / static_cast<int>(sizeof(float)), kNumHarmonics);
+    std::copy_n(static_cast<const float*>(pData), count, mHarmonics.begin());
+
+    float vals[kWavetableSize];
+    RenderHarmonics(mHarmonics.data(), kNumHarmonics, vals);
+    mDSP.UpdateWavetable(vals, kWavetableSize);
     return true;
   }
   return false;

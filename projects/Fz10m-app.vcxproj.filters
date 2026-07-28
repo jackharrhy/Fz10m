@@ -8,6 +8,7 @@
       <Filter>IPlug</Filter>
     </ClCompile>
     <ClCompile Include="..\Fz10m.cpp" />
+    <ClCompile Include="..\Fz10m_State.cpp" />
     <ClCompile Include="..\iPlug2\IGraphics\IControl.cpp">
       <Filter>IGraphics</Filter>
     </ClCompile>

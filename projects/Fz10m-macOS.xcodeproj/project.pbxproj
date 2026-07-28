@@ -62,6 +62,14 @@
 		4F3862F12014BBEC0009F402 /* Fz10m.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* Fz10m.cpp */; };
 		4F3862F22014BBEC0009F402 /* Fz10m.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* Fz10m.cpp */; };
 		4F3862F32014BBEC0009F402 /* Fz10m.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* Fz10m.cpp */; };
+		FA20C0010000000000000000 /* Fz10m_State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA20C0000000000000000000 /* Fz10m_State.cpp */; };
+		FA20C0020000000000000000 /* Fz10m_State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA20C0000000000000000000 /* Fz10m_State.cpp */; };
+		FA20C0030000000000000000 /* Fz10m_State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA20C0000000000000000000 /* Fz10m_State.cpp */; };
+		FA20C0040000000000000000 /* Fz10m_State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA20C0000000000000000000 /* Fz10m_State.cpp */; };
+		FA20C0050000000000000000 /* Fz10m_State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA20C0000000000000000000 /* Fz10m_State.cpp */; };
+		FA20C0060000000000000000 /* Fz10m_State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA20C0000000000000000000 /* Fz10m_State.cpp */; };
+		FA20C0070000000000000000 /* Fz10m_State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA20C0000000000000000000 /* Fz10m_State.cpp */; };
+		FA20C0080000000000000000 /* Fz10m_State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA20C0000000000000000000 /* Fz10m_State.cpp */; };
 		4F3EE1C0231438D000004786 /* Fz10m-macOS-MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F1B4AE32014D33600BC64D4 /* Fz10m-macOS-MainMenu.xib */; };
 		4F3EE1C2231438D000004786 /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
 		4F3EE1C3231438D000004786 /* RtMidi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F10D3D7203A6719003EF82A /* RtMidi.cpp */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
@@ -461,6 +469,7 @@
 		4F35DEAC207E5C5A00867D8F /* IPlugPluginBase.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugPluginBase.h; path = ../iPlug2/IPlug/IPlugPluginBase.h; sourceTree = "<group>"; tabWidth = 2; };
 		4F3862ED2014BBEC0009F402 /* Fz10m.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Fz10m.cpp; path = ../Fz10m.cpp; sourceTree = "<group>"; };
 		4F3862EE2014BBEC0009F402 /* Fz10m.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Fz10m.h; path = ../Fz10m.h; sourceTree = "<group>"; };
+		FA20C0000000000000000000 /* Fz10m_State.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Fz10m_State.cpp; path = ../Fz10m_State.cpp; sourceTree = "<group>"; };
 		4F3862FF2014BCC70009F402 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
 		4F3907602013EBA300DDA490 /* Fz10m.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Fz10m.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F3907772013EC0400DDA490 /* IPlugAUViewController.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = IPlugAUViewController.mm; path = ../iPlug2/IPlug/AUv3/IPlugAUViewController.mm; sourceTree = "<group>"; };
@@ -875,6 +884,7 @@
 				52FBBED30D0CF143001C8B8A /* config.h */,
 				4F3862EE2014BBEC0009F402 /* Fz10m.h */,
 				4F3862ED2014BBEC0009F402 /* Fz10m.cpp */,
+				FA20C0000000000000000000 /* Fz10m_State.cpp */,
 				4F9313232315CA1100DB2383 /* README.md */,
 				089C167CFE841241C02AAC07 /* Resources */,
 				32C88E010371C26100C91783 /* Other Sources */,
@@ -2256,6 +2266,7 @@
 				4F6369DE20A464BB0022C370 /* IGraphicsNanoVG_src.m in Sources */,
 				4F7C4958255DDFC400DF7588 /* IControls.cpp in Sources */,
 				4F8D9707209EF5AC006E2A11 /* Fz10m.cpp in Sources */,
+				FA20C0010000000000000000 /* Fz10m_State.cpp in Sources */,
 				4F7C495A255DDFC400DF7588 /* ITextEntryControl.cpp in Sources */,
 				4F78D9BB13B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
 				4FB1F59020E4B010004157C8 /* IGraphicsMac_view.mm in Sources */,
@@ -2301,6 +2312,7 @@
 				4F78D95C13B63BA50032E0F3 /* IPlugParameter.cpp in Sources */,
 				4FB1F58C20E4B006004157C8 /* IGraphicsMac.mm in Sources */,
 				4F3862F22014BBEC0009F402 /* Fz10m.cpp in Sources */,
+				FA20C0020000000000000000 /* Fz10m_State.cpp in Sources */,
 				FA10A0014F3AE1A212C0E5E0 /* VoiceAllocator.cpp in Sources */,
 				FA10B0014F3AE1A212C0E5E0 /* MidiSynth.cpp in Sources */,
 			);
@@ -2338,6 +2350,7 @@
 				4F3EE1DB231438D000004786 /* IPlugAPP_main.cpp in Sources */,
 				4F3EE1DD231438D000004786 /* IGraphicsMac.mm in Sources */,
 				4F3EE1DE231438D000004786 /* Fz10m.cpp in Sources */,
+				FA20C0030000000000000000 /* Fz10m_State.cpp in Sources */,
 				4F3EE1E0231438D000004786 /* IPlugAPIBase.cpp in Sources */,
 				4F3EE1E1231438D000004786 /* IPlugPluginBase.cpp in Sources */,
 				4F3EE1E2231438D000004786 /* IGraphicsEditorDelegate.cpp in Sources */,
@@ -2357,6 +2370,7 @@
 				4F78BE1422E7406D00AD537E /* Fz10m.h in Sources */,
 				4F0D965C23099F6900BFDED0 /* IPlugProcessor.cpp in Sources */,
 				4F78BE1522E7406D00AD537E /* Fz10m.cpp in Sources */,
+				FA20C0040000000000000000 /* Fz10m_State.cpp in Sources */,
 				4F78BE1622E7406D00AD537E /* IGraphicsMac_view.mm in Sources */,
 				4F78BE1722E7406D00AD537E /* IGraphicsMac.mm in Sources */,
 				4F78BE1822E7406D00AD537E /* IGraphicsCoreText.mm in Sources */,
@@ -2392,6 +2406,7 @@
 				4F8E0FEC2BF5F3B500D360CE /* IGraphicsNanoVG_src.m in Sources */,
 				4F8E0FED2BF5F3B500D360CE /* IControls.cpp in Sources */,
 				4F8E0FEE2BF5F3B500D360CE /* Fz10m.cpp in Sources */,
+				FA20C0050000000000000000 /* Fz10m_State.cpp in Sources */,
 				4F8E0FEF2BF5F3B500D360CE /* ITextEntryControl.cpp in Sources */,
 				4F8E0FF02BF5F3B500D360CE /* IPlugAPIBase.cpp in Sources */,
 				4F8E0FF12BF5F3B500D360CE /* IGraphicsMac_view.mm in Sources */,
@@ -2415,6 +2430,7 @@
 				4F7C495D255DDFC400DF7588 /* ITextEntryControl.cpp in Sources */,
 				B8E22A0C220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp in Sources */,
 				4F3862F12014BBEC0009F402 /* Fz10m.cpp in Sources */,
+				FA20C0060000000000000000 /* Fz10m_State.cpp in Sources */,
 				4F81591F205D50EB00393585 /* pluginfactory.cpp in Sources */,
 				4F6FD2B322675B6300FC59E6 /* IGraphicsCoreText.mm in Sources */,
 				4F815973205D50EB00393585 /* vstinitiids.cpp in Sources */,
@@ -2483,6 +2499,7 @@
 				4FB1F59420E4B014004157C8 /* IGraphicsMac_view.mm in Sources */,
 				4F7C4963255DDFC600DF7588 /* ITextEntryControl.cpp in Sources */,
 				4F3862F32014BBEC0009F402 /* Fz10m.cpp in Sources */,
+				FA20C0070000000000000000 /* Fz10m_State.cpp in Sources */,
 				4FB600231567CB0A0020189A /* IPlugParameter.cpp in Sources */,
 				4FB600261567CB0A0020189A /* AAX_Exports.cpp in Sources */,
 				4F6FD2B522675B6300FC59E6 /* IGraphicsCoreText.mm in Sources */,
@@ -2526,6 +2543,7 @@
 				4F690C9B203A345100A4A13E /* IPlugAPP_main.cpp in Sources */,
 				4FB1F58920E4B004004157C8 /* IGraphicsMac.mm in Sources */,
 				4F3862EF2014BBEC0009F402 /* Fz10m.cpp in Sources */,
+				FA20C0080000000000000000 /* Fz10m_State.cpp in Sources */,
 				4F78D90B13B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
 				4F35DEAD207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
 				4F8C10E020BA2796006320CD /* IGraphicsEditorDelegate.cpp in Sources */,
