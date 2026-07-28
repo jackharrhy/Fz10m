@@ -1,6 +1,12 @@
 Fz10m changelog
 https://github.com/jackharrhy/Fz10m
 
+2026-07-28 - v0.7.0
+  - Persist drawn wavetable and additive harmonic edits across project save/load
+  - Restore state saved by previous Fz10m parameter layouts
+  - Keep wavetable editor updates off realtime-capable callbacks
+  - Fix CLAP stepped parameter text conversion
+
 2026-04-25 - v0.6.0
   - Additive harmonic mode: 16 harmonic sliders with Draw/Additive toggle
   - Harmonic presets: selecting a waveform preset in additive mode sets the harmonic recipe
